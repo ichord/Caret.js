@@ -1,0 +1,24 @@
+{
+  "name": "jquery.caret.js",
+  "version": "0.0.0",
+  "description": "Get caret position and offset from inputor",
+  "main": "index.js",
+  "dependencies": {
+    "grunt": "~0.4.1"
+  },
+  "devDependencies": {
+    "grunt-contrib-uglify": "~0.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "keywords": [
+    "jquery",
+    "caret",
+    "offset",
+    "position"
+  ],
+  "author": "chord.luo <chord.luo@gmail.com>",
+  "license": "MIT"
+}
