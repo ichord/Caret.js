@@ -24,7 +24,18 @@
     # Browser globals
     factory window.jQuery
 ) ($) ->
-    getCaretPos = (inputor) ->
+
+  "use strict";
+
+  pluginName = 'caret'
+
+  class Caret
+
+    constructor: (@$inputor) ->
+      @dom_inputor = @$inputor[0]
+
+    getPos: ->
+      inputor = @dom_inputor
       if document.selection #IE
         # reference: http://tinyurl.com/86pyc4s
 
@@ -95,7 +106,8 @@
         start = inputor.selectionStart
       return start
 
-    setCaretPos = (inputor, pos) ->
+    setPos: (pos) ->
+      inputor = @dom_inputor
       if document.selection #IE
         range = inputor.createTextRange()
         range.move "character", pos
@@ -103,69 +115,8 @@
       else
         inputor.setSelectionRange pos, pos
 
-    # @example
-    #   mirror = new Mirror($("textarea#inputor"))
-    #   html = "<p>We will get the rect of <span>@</span>icho</p>"
-    #   mirror.create(html).rect()
-    class Mirror
-      css_attr: [
-        "overflowY", "height", "width", "paddingTop", "paddingLeft",
-        "paddingRight", "paddingBottom", "marginTop", "marginLeft",
-        "marginRight", "marginBottom","fontFamily", "borderStyle",
-        "borderWidth","wordWrap", "fontSize", "lineHeight", "overflowX",
-        "text-align",
-      ]
-
-      # @param $inputor [Object] 输入框的 jQuery 对象
-      constructor: (@$inputor) ->
-
-      # 克隆输入框的样式
-      #
-      # @return [Object] 返回克隆得到样式
-      mirrorCss: ->
-        css =
-          position: 'absolute'
-          left: -9999
-          top:0
-          zIndex: -20000
-          'white-space': 'pre-wrap'
-        $.each @css_attr, (i,p) =>
-          css[p] = @$inputor.css p
-        css
-
-      # 在页面中创建克隆后的镜像.
-      #
-      # @param html [String] 将输入框内容转换成 html 后的内容.
-      #   主要是为了给 `flag` (@, etc.) 打上标记
-      #
-      # @return [Object] 返回当前对象
-      create: (html) ->
-        @$mirror = $('<div></div>')
-        @$mirror.css this.mirrorCss()
-        @$mirror.html(html)
-        @$inputor.after(@$mirror)
-        this
-
-      # 获得标记的位置
-      #
-      # @return [Object] 标记的坐标
-      #   {left: 0, top: 0, bottom: 0}
-      rect: ->
-        $flag = @$mirror.find "span#flag"
-        pos = $flag.position()
-        rect = {left: pos.left, top: pos.top, bottom: $flag.height() + pos.top}
-        @$mirror.remove()
-        rect
-
-      @offset: ($inputor, html) ->
-        this.constructor $inputor
-        this.create(html).rect()
-
-
-    position = ($inputor) ->
-      ### 克隆完inputor后将原来的文本内容根据
-        @的位置进行分块,以获取@块在inputor(输入框)里的position
-      ###
+    getPosition: ->
+      $inputor = @$inputor
       format = (value) ->
         value.replace(/</g, '&lt')
         .replace(/>/g, '&gt')
@@ -173,68 +124,107 @@
         .replace(/"/g,'&quot')
         .replace(/\r\n|\r|\n/g,"<br />")
 
-      pos = getCaretPos $inputor[0]
+      pos = this.getPos()
       start_range = $inputor.val().slice(0, pos)
       html = "<span>"+format(start_range)+"</span>"
-      html += "<span id='flag'>?</span>"
+      html += "<span id='caret'>|</span>"
 
-      ###
-        将inputor的 offset(相对于document)
-        和@在inputor里的position相加
-        就得到了@相对于document的offset.
-        当然,还要加上行高和滚动条的偏移量.
-      ###
       at_rect = Mirror.offset($inputor, html)
 
       x = offset.left + at_rect.left - $inputor.scrollLeft()
       y = at_rect.top - $inputor.scrollTop()
       h = y + at_rect.bottom
-      return {left: x, top: y, height: h}
 
-    offset = ($inputor) ->
-      offset = $inputor.offset()
-      pos = position($inputor)
+      {left: x, top: y, height: h}
 
-      x = offset.left + pos.left
-      y = offset.top + pos.top
-      h = pos.height
-
-      return {left: x, top: y, height: h}
-
-    offset_for_ie = ->
-      Sel = document.selection.createRange()
-      x = Sel.boundingLeft + $inputor.scrollLeft()
-      y = Sel.boundingTop + $(window).scrollTop() + $inputor.scrollTop()
-      bottom = y + Sel.boundingHeight
-      return {left: x, top: y,  bottom:bottom}
-
-
-    methods =
-      pos: (pos) ->
-        inputor = this[0]
-        inputor.focus()
-        if pos
-          setCaretPos(inputor, pos)
-        else
-          getCaretPos(inputor)
-
-      position: ->
-        position this
-
-      offset: ->
-        if document.selection # for IE full
-          offset_for_ie()
-        else
-          offset this
-
-
-    $.fn.caret = (method) ->
-      if methods[method]
-        methods[method].apply this, Array::slice.call(arguments, 1)
-      # else if typeof method is 'object' || !method
-      #   methods.init.apply this, arguments
+    getOffset: ->
+      $inputor = @$inputor
+      if document.selection # for IE full
+        Sel = document.selection.createRange()
+        x = Sel.boundingLeft + $inputor.scrollLeft()
+        y = Sel.boundingTop + $(window).scrollTop() + $inputor.scrollTop()
+        h = Sel.boundingHeight
       else
-        $.error "Method #{method} does not exist on jQuery.caret"
+        offset = $inputor.offset()
+        pos = position($inputor)
+
+        x = offset.left + pos.left
+        y = offset.top + pos.top
+        h = pos.height
+
+      {left: x, top: y, height: h}
+
+
+  # @example
+  #   mirror = new Mirror($("textarea#inputor"))
+  #   html = "<p>We will get the rect of <span>@</span>icho</p>"
+  #   mirror.create(html).rect()
+  class Mirror
+    css_attr: [
+      "overflowY", "height", "width", "paddingTop", "paddingLeft",
+      "paddingRight", "paddingBottom", "marginTop", "marginLeft",
+      "marginRight", "marginBottom","fontFamily", "borderStyle",
+      "borderWidth","wordWrap", "fontSize", "lineHeight", "overflowX",
+      "text-align",
+    ]
+
+    constructor: (@$inputor) ->
+
+    mirrorCss: ->
+      css =
+        position: 'absolute'
+        left: -9999
+        top:0
+        zIndex: -20000
+        'white-space': 'pre-wrap'
+      $.each @css_attr, (i,p) =>
+        css[p] = @$inputor.css p
+      css
+
+    create: (html) ->
+      @$mirror = $('<div></div>')
+      @$mirror.css this.mirrorCss()
+      @$mirror.html(html)
+      @$inputor.after(@$mirror)
+      this
+
+    # 获得标记的位置
+    #
+    # @return [Object] 标记的坐标
+    #   {left: 0, top: 0, bottom: 0}
+    rect: ->
+      $flag = @$mirror.find "#caret"
+      pos = $flag.position()
+      rect = {left: pos.left, top: pos.top, bottom: $flag.height() + pos.top}
+      @$mirror.remove()
+      rect
+
+    @offset: ($inputor, html) ->
+      this.constructor $inputor
+      this.create(html).rect()
+
+
+  methods =
+    pos: (pos) ->
+      if pos
+        this.getPos()
+      else
+        this.setPos pos
+
+    position: ->
+      this.getPosition()
+
+    offset: ->
+      this.getOffset()
+
+
+  $.fn.caret = (method) ->
+    caret = new Caret this
+
+    if methods[method]
+      methods[method].apply caret, Array::slice.call(arguments, 1)
+    else
+      $.error "Method #{method} does not exist on jQuery.caret"
 
 
 

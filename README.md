@@ -9,10 +9,10 @@ Usage
 ```javascript
 
 // Get caret position
-$('#inputor').caret('position'); // => {left: 15, top: 30}
+$('#inputor').caret('position'); // => {left: 15, top: 30, height: 20}
 
 // Get caret offset
-$('#inputor').caret('offset'); // => {left: 300, top: 400}
+$('#inputor').caret('offset'); // => {left: 300, top: 400, height: 20}
 
 // more
 
