@@ -36,6 +36,8 @@
 
     getPos: ->
       inputor = @dom_inputor
+      inputor.focus()
+
       if document.selection #IE
         # reference: http://tinyurl.com/86pyc4s
 
@@ -129,7 +131,9 @@
       html = "<span>"+format(start_range)+"</span>"
       html += "<span id='caret'>|</span>"
 
-      at_rect = Mirror.offset($inputor, html)
+      mirror = new Mirror($inputor)
+      at_rect = mirror.create(html).rect()
+      offset = $inputor.offset()
 
       x = offset.left + at_rect.left - $inputor.scrollLeft()
       y = at_rect.top - $inputor.scrollTop()
@@ -146,7 +150,7 @@
         h = Sel.boundingHeight
       else
         offset = $inputor.offset()
-        pos = position($inputor)
+        pos = this.getPosition()
 
         x = offset.left + pos.left
         y = offset.top + pos.top
@@ -199,17 +203,13 @@
       @$mirror.remove()
       rect
 
-    @offset: ($inputor, html) ->
-      this.constructor $inputor
-      this.create(html).rect()
-
 
   methods =
     pos: (pos) ->
       if pos
-        this.getPos()
-      else
         this.setPos pos
+      else
+        this.getPos()
 
     position: ->
       this.getPosition()
