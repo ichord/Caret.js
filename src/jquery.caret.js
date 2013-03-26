@@ -126,23 +126,22 @@
         }
       };
 
-      Caret.prototype.getPosition = function() {
-        var $inputor, at_rect, format, h, html, mirror, offset, pos, start_range, x, y;
+      Caret.prototype.getPosition = function(pos) {
+        var $inputor, at_rect, format, h, html, mirror, start_range, x, y;
 
         $inputor = this.$inputor;
         format = function(value) {
           return value.replace(/</g, '&lt').replace(/>/g, '&gt').replace(/`/g, '&#96').replace(/"/g, '&quot').replace(/\r\n|\r|\n/g, "<br />");
         };
-        pos = this.getPos();
+        pos = pos || this.getPos();
         start_range = $inputor.val().slice(0, pos);
         html = "<span>" + format(start_range) + "</span>";
         html += "<span id='caret'>|</span>";
         mirror = new Mirror($inputor);
         at_rect = mirror.create(html).rect();
-        offset = $inputor.offset();
-        x = offset.left + at_rect.left - $inputor.scrollLeft();
+        x = at_rect.left - $inputor.scrollLeft();
         y = at_rect.top - $inputor.scrollTop();
-        h = y + at_rect.bottom;
+        h = at_rect.height;
         return {
           left: x,
           top: y,
@@ -150,8 +149,8 @@
         };
       };
 
-      Caret.prototype.getOffset = function() {
-        var $inputor, Sel, h, offset, pos, x, y;
+      Caret.prototype.getOffset = function(pos) {
+        var $inputor, Sel, h, offset, position, x, y;
 
         $inputor = this.$inputor;
         if (document.selection) {
@@ -161,10 +160,10 @@
           h = Sel.boundingHeight;
         } else {
           offset = $inputor.offset();
-          pos = this.getPosition();
-          x = offset.left + pos.left;
-          y = offset.top + pos.top;
-          h = pos.height;
+          position = this.getPosition(pos);
+          x = offset.left + position.left;
+          y = offset.top + position.top;
+          h = position.height;
         }
         return {
           left: x,
@@ -216,7 +215,7 @@
         rect = {
           left: pos.left,
           top: pos.top,
-          bottom: $flag.height() + pos.top
+          height: $flag.height()
         };
         this.$mirror.remove();
         return rect;
@@ -233,11 +232,11 @@
           return this.getPos();
         }
       },
-      position: function() {
-        return this.getPosition();
+      position: function(pos) {
+        return this.getPosition(pos);
       },
-      offset: function() {
-        return this.getOffset();
+      offset: function(pos) {
+        return this.getOffset(pos);
       }
     };
     return $.fn.caret = function(method) {

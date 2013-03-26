@@ -117,7 +117,7 @@
       else
         inputor.setSelectionRange pos, pos
 
-    getPosition: ->
+    getPosition: (pos)->
       $inputor = @$inputor
       format = (value) ->
         value.replace(/</g, '&lt')
@@ -126,22 +126,21 @@
         .replace(/"/g,'&quot')
         .replace(/\r\n|\r|\n/g,"<br />")
 
-      pos = this.getPos()
+      pos = pos || this.getPos()
       start_range = $inputor.val().slice(0, pos)
       html = "<span>"+format(start_range)+"</span>"
       html += "<span id='caret'>|</span>"
 
       mirror = new Mirror($inputor)
       at_rect = mirror.create(html).rect()
-      offset = $inputor.offset()
 
-      x = offset.left + at_rect.left - $inputor.scrollLeft()
+      x = at_rect.left - $inputor.scrollLeft()
       y = at_rect.top - $inputor.scrollTop()
-      h = y + at_rect.bottom
+      h = at_rect.height
 
       {left: x, top: y, height: h}
 
-    getOffset: ->
+    getOffset: (pos) ->
       $inputor = @$inputor
       if document.selection # for IE full
         Sel = document.selection.createRange()
@@ -150,11 +149,11 @@
         h = Sel.boundingHeight
       else
         offset = $inputor.offset()
-        pos = this.getPosition()
+        position = this.getPosition(pos)
 
-        x = offset.left + pos.left
-        y = offset.top + pos.top
-        h = pos.height
+        x = offset.left + position.left
+        y = offset.top + position.top
+        h = position.height
 
       {left: x, top: y, height: h}
 
@@ -199,7 +198,7 @@
     rect: ->
       $flag = @$mirror.find "#caret"
       pos = $flag.position()
-      rect = {left: pos.left, top: pos.top, bottom: $flag.height() + pos.top}
+      rect = {left: pos.left, top: pos.top, height: $flag.height() }
       @$mirror.remove()
       rect
 
@@ -211,11 +210,11 @@
       else
         this.getPos()
 
-    position: ->
-      this.getPosition()
+    position: (pos) ->
+      this.getPosition pos
 
-    offset: ->
-      this.getOffset()
+    offset: (pos) ->
+      this.getOffset pos
 
 
   $.fn.caret = (method) ->
@@ -225,6 +224,3 @@
       methods[method].apply caret, Array::slice.call(arguments, 1)
     else
       $.error "Method #{method} does not exist on jQuery.caret"
-
-
-
