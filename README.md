@@ -19,10 +19,9 @@ $('#inputor').caret('position'); // => {left: 15, top: 30, height: 20}
 $('#inputor').caret('offset'); // => {left: 300, top: 400, height: 20}
 
 var fixPos = 20
-
+//// Not working in IE
 // Get position of the 20th char in the inputor.
 $('#inputor').caret('position', fixPos);
-
 // Get offset of the 20th char
 $('#inputor').caret('offset', fixPos);
 
