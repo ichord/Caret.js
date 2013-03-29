@@ -13,6 +13,7 @@ Usage
 ```javascript
 
 // Get caret position
+// not support in IE.
 $('#inputor').caret('position'); // => {left: 15, top: 30, height: 20}
 
 // Get caret offset
