@@ -1,11 +1,17 @@
-jquery.caret
-============
+Caret.js
+========
 
 Get caret postion or offset from inputor
 
 This is the core function that working in [At.js](http://ichord.github.com/At.js).  
 Now, It just become an simple jquery plugin so that everybody can use it.  
 And, of course, **At.js** is using this plugin too.
+
+Live Demo
+=========
+
+http://ichord.github.com/Caret.js/
+
 
 Usage
 =====
