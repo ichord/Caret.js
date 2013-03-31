@@ -32,10 +32,10 @@
   class Caret
 
     constructor: (@$inputor) ->
-      @dom_inputor = @$inputor[0]
+      @domInputor = @$inputor[0]
 
     getPos: ->
-      inputor = @dom_inputor
+      inputor = @domInputor
       inputor.focus()
 
       if document.selection #IE
@@ -109,7 +109,7 @@
       return start
 
     setPos: (pos) ->
-      inputor = @dom_inputor
+      inputor = @domInputor
       if document.selection #IE
         range = inputor.createTextRange()
         range.move "character", pos
@@ -142,18 +142,31 @@
 
     getOffset: (pos) ->
       $inputor = @$inputor
-      if document.selection # for IE full
-        Sel = document.selection.createRange()
-        x = Sel.boundingLeft + $inputor.scrollLeft()
-        y = Sel.boundingTop + $(window).scrollTop() + $inputor.scrollTop()
-        h = Sel.boundingHeight
-      else
-        offset = $inputor.offset()
-        position = this.getPosition(pos)
 
-        x = offset.left + position.left
-        y = offset.top + position.top
-        h = position.height
+      offset = $inputor.offset()
+      position = this.getPosition(pos)
+
+      x = offset.left + position.left
+      y = offset.top + position.top
+      h = position.height
+
+      {left: x, top: y, height: h}
+
+    getIEPosition: (pos) ->
+      offset = this.getIEOffset pos
+      inputorOffset = @$inputor.offset()
+      x = offset.left - inputorOffset.left
+      y = offset.top - inputorOffset.top
+      h = offset.height
+
+      {left: x, top: y, height: h}
+
+    getIEOffset: (pos) ->
+      range = @domInputor.createRange()
+      range.move('character', pos) if pos
+      x = range.boundingLeft + $inputor.scrollLeft()
+      y = range.boundingTop + $(window).scrollTop() + $inputor.scrollTop()
+      h = range.boundingHeight
 
       {left: x, top: y, height: h}
 
@@ -211,10 +224,16 @@
         this.getPos()
 
     position: (pos) ->
-      this.getPosition pos
+      if document.selection # for IE full
+        this.getIEPosition pos
+      else
+        this.getPosition pos
 
     offset: (pos) ->
-      this.getOffset pos
+      if document.selection # for IE full
+        this.getIEOffset pos
+      else
+        this.getOffset pos
 
 
   $.fn.caret = (method) ->
@@ -224,3 +243,6 @@
       methods[method].apply caret, Array::slice.call(arguments, 1)
     else
       $.error "Method #{method} does not exist on jQuery.caret"
+
+
+

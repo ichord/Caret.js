@@ -30,13 +30,13 @@
     Caret = (function() {
       function Caret($inputor) {
         this.$inputor = $inputor;
-        this.dom_inputor = this.$inputor[0];
+        this.domInputor = this.$inputor[0];
       }
 
       Caret.prototype.getPos = function() {
         var end, endRange, inputor, len, normalizedValue, pos, range, start, textInputRange;
 
-        inputor = this.dom_inputor;
+        inputor = this.domInputor;
         inputor.focus();
         if (document.selection) {
           /*
@@ -116,7 +116,7 @@
       Caret.prototype.setPos = function(pos) {
         var inputor, range;
 
-        inputor = this.dom_inputor;
+        inputor = this.domInputor;
         if (document.selection) {
           range = inputor.createTextRange();
           range.move("character", pos);
@@ -150,21 +150,46 @@
       };
 
       Caret.prototype.getOffset = function(pos) {
-        var $inputor, Sel, h, offset, position, x, y;
+        var $inputor, h, offset, position, x, y;
 
         $inputor = this.$inputor;
-        if (document.selection) {
-          Sel = document.selection.createRange();
-          x = Sel.boundingLeft + $inputor.scrollLeft();
-          y = Sel.boundingTop + $(window).scrollTop() + $inputor.scrollTop();
-          h = Sel.boundingHeight;
-        } else {
-          offset = $inputor.offset();
-          position = this.getPosition(pos);
-          x = offset.left + position.left;
-          y = offset.top + position.top;
-          h = position.height;
+        offset = $inputor.offset();
+        position = this.getPosition(pos);
+        x = offset.left + position.left;
+        y = offset.top + position.top;
+        h = position.height;
+        return {
+          left: x,
+          top: y,
+          height: h
+        };
+      };
+
+      Caret.prototype.getIEPosition = function(pos) {
+        var h, inputorOffset, offset, x, y;
+
+        offset = this.getIEOffset(pos);
+        inputorOffset = this.$inputor.offset();
+        x = offset.left - inputorOffset.left;
+        y = offset.top - inputorOffset.top;
+        h = offset.height;
+        return {
+          left: x,
+          top: y,
+          height: h
+        };
+      };
+
+      Caret.prototype.getIEOffset = function(pos) {
+        var h, range, x, y;
+
+        range = this.domInputor.createRange();
+        if (pos) {
+          range.move('character', pos);
         }
+        x = range.boundingLeft + $inputor.scrollLeft();
+        y = range.boundingTop + $(window).scrollTop() + $inputor.scrollTop();
+        h = range.boundingHeight;
         return {
           left: x,
           top: y,
@@ -233,10 +258,18 @@
         }
       },
       position: function(pos) {
-        return this.getPosition(pos);
+        if (document.selection) {
+          return this.getIEPosition(pos);
+        } else {
+          return this.getPosition(pos);
+        }
       },
       offset: function(pos) {
-        return this.getOffset(pos);
+        if (document.selection) {
+          return this.getIEOffset(pos);
+        } else {
+          return this.getOffset(pos);
+        }
       }
     };
     return $.fn.caret = function(method) {
