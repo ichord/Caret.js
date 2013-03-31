@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+  <title>Caret.js</title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type="text/javascript" src="src/jquery.caret.js"></script>
+  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
+
+  <script type="text/javascript">
+  function p () {
+    console.log(arguments)
+  }
+  $(document).ready(function () {
+    $inputor = $('#inputor');
+    $corbox = $('.coordinate-box');
+    $cursor = $('.cursor');
+
+    function cal() {
+      offset = $inputor.caret('offset');
+      $corbox.css({'width': offset.left, 'height': offset.top})
+      $cursor.offset({left: offset.left, top: offset.top + offset.height + 2})
+        .html("&nbsp; left: " + offset.left + ", " + "top: " + offset.top + "&nbsp;");
+    }
+    $inputor.on('focus keyup', function(){
+      cal()
+    })
+    $inputor.caret('pos', 53).focus();
+  })
+  </script>
+
+  <style type="text/css">
+  html, body {
+    background:#F9F9F9;
+    padding: 0;
+    margin: 0;
+    font: 14px/1.6 "Lucida Grande", "Helvetica", sans-serif;
+    color: #333;
+  }
+  h1,h2,h3,h4 {
+    font-family: 'PT Sans', sans-serif;
+    line-height: 40px;
+    color: inherit;
+    font-weight: bold;
+    margin: 10px 0;
+    text-rendering: optimizelegibility;
+  }
+  strong {
+    color: #424242;
+  }
+  h1 {
+    margin-top: 0;
+    font-size:56px;
+  }
+  a {
+    color: #4183C4;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .wrapper {
+    width: 750px;
+    padding: 20px;
+    margin: 0 auto;
+  }
+  header {
+    margin-top:70px;
+    margin-bottom: 50px;
+    text-align: center;
+  }
+  textarea {
+    height: 160px;
+    width: 90%;
+    border: 1px solid #dadada;
+    border-radius: 4px;
+    padding: 5px 8px;
+    outline: 0 none;
+    margin: 10px 0;
+  }
+
+  .coordinate-box {
+    border-right: 2px dashed gray;
+    border-bottom: 2px dashed gray;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+  }
+  .cursor {
+    border: 2px solid gray;
+    position: absolute;
+    z-index: 999;
+  }
+
+  </style>
+</head>
+
+<body>
+  <div class="container wrapper">
+    <a id="github" href="https://github.com/ichord/At.js" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:999" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <header>
+      <h1>Caret.js</h1>
+    </header>
+
+    <div id="main">
+      <textarea id="inputor">
+
+
+
+                          Type something here for fun!!
+
+      </textarea>
+      <div class="coordinate-box"></div>
+      <div class="cursor"></div>
+    </div>
+
+  </div>
+</body>
+</html>
