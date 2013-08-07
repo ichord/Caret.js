@@ -7,9 +7,14 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "spec",
+    "index.html"
   ],
   "dependencies": {
-    "jquery"
+    "jquery": "~2.0.0"
+  },
+  "devDependencies": {
+    "jasmine-jquery": "~1.5.8"
   }
 }
