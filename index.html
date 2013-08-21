@@ -11,17 +11,26 @@
   function p () {
     console.log(arguments)
   }
+  function cal() {
+    offset = $inputor.caret('offset');
+    if (offset)
+      resizeBox(offset);
+  }
+  function cal2() {
+    offset = $inputor2.caret('offset');
+    console.log(offset);
+    resizeBox(offset);
+  }
+  function resizeBox (offset) {
+    $corbox.css({'width': offset.left, 'height': offset.top})
+    $cursor.offset({left: offset.left, top: offset.top + offset.height + 2})
+      .html("&nbsp; left: " + offset.left + ", " + "top: " + offset.top + "&nbsp;");
+  }
   $(document).ready(function () {
     $inputor = $('#inputor');
+    $inputor2 = $('#inputor2')
     $corbox = $('.coordinate-box');
     $cursor = $('.cursor');
-
-    function cal() {
-      offset = $inputor.caret('offset');
-      $corbox.css({'width': offset.left, 'height': offset.top})
-      $cursor.offset({left: offset.left, top: offset.top + offset.height + 2})
-        .html("&nbsp; left: " + offset.left + ", " + "top: " + offset.top + "&nbsp;");
-    }
     $inputor.on('focus keyup', function(){
       cal()
     })
@@ -70,7 +79,7 @@
     margin-bottom: 50px;
     text-align: center;
   }
-  textarea {
+  .inputor {
     height: 160px;
     width: 90%;
     border: 1px solid #dadada;
@@ -105,13 +114,16 @@
     </header>
 
     <div id="main">
-      <textarea id="inputor">
+      <textarea id="inputor" class="inputor">
 
 
 
                           Type something here for fun!!
 
       </textarea>
+      <div id="inputor2" class="inputor" contentEditable="true">
+Type Type Type <strong>Typeing</strong> T
+      </div>
       <div class="coordinate-box"></div>
       <div class="cursor"></div>
     </div>
