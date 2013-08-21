@@ -13,13 +13,13 @@
   }
   function cal() {
     offset = $inputor.caret('offset');
-    if (offset)
-      resizeBox(offset);
+    resizeBox(offset);
   }
   function cal2() {
     offset = $inputor2.caret('offset');
     console.log(offset);
-    resizeBox(offset);
+    if (offset)
+      resizeBox(offset);
   }
   function resizeBox (offset) {
     $corbox.css({'width': offset.left, 'height': offset.top})

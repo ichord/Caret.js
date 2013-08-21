@@ -125,8 +125,8 @@
         rect = clonedRange.getBoundingClientRect()
         offset =
           height: rect.height
-          left: rect.left + rect.width
-          top: rect.top
+          left: rect.left + rect.width + $inputor.scrollLeft()
+          top: rect.top + $(window).scrollTop() + $inputor.scrollTop()
 
       offset
 
