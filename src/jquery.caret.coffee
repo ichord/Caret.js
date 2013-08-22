@@ -162,11 +162,16 @@
       {left: x, top: y, height: h}
 
     getIEOffset: (pos) ->
-      range = @domInputor.createTextRange()
-      range.move('character', pos) if pos
-      x = range.boundingLeft + $inputor.scrollLeft()
-      y = range.boundingTop + $(window).scrollTop() + $inputor.scrollTop()
-      h = range.boundingHeight
+      textRange = @domInputor.createTextRange()
+      if pos
+        textRange.move('character', pos)
+      else
+        range = document.selection.createRange()
+        textRange.moveToBookmark range.getBookmark()
+
+      x = textRange.boundingLeft + @$inputor.scrollLeft()
+      y = textRange.boundingTop + $(window).scrollTop() + @$inputor.scrollTop()
+      h = textRange.boundingHeight
 
       {left: x, top: y, height: h}
 
