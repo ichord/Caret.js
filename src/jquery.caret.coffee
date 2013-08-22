@@ -34,13 +34,6 @@
     constructor: (@$inputor) ->
       @domInputor = @$inputor[0]
 
-    contentEditable: ->
-      !!(@domInputor.contentEditable && @domInputor.contentEditable == 'true')
-
-    range: ->
-      sel = window.getSelection()
-      if sel.rangeCount > 0 then sel.getRangeAt(0) else null
-
     getIEPos: ->
       # https://github.com/ichord/Caret.js/wiki/Get-pos-of-caret-in-IE
       inputor = @domInputor
@@ -60,20 +53,29 @@
           pos = -textInputRange.moveStart "character", -len
       pos
 
+    getIEEditablePos: ->
+      textRange = document.selection.createRange()
+      preCaretTextRange = document.body.createTextRange()
+      preCaretTextRange.moveToElementText(@domInputor)
+      preCaretTextRange.setEndPoint("EndToEnd", textRange)
+      preCaretTextRange.text.length
+
     getPos: ->
       inputor = @domInputor
       inputor.focus()
       pos = 0
 
-      if document.selection #IE
-        pos = this.getIEPos()
-      else if this.contentEditable() and range = this.range()
-        clonedRange = range.cloneRange()
-        clonedRange.selectNodeContents(inputor)
-        clonedRange.setEnd(range.endContainer, range.endOffset)
-        pos = clonedRange.toString().length
+      if this.contentEditable() and (range = this.range())
+         clonedRange = range.cloneRange()
+         clonedRange.selectNodeContents(inputor)
+         clonedRange.setEnd(range.endContainer, range.endOffset)
+         pos = clonedRange.toString().length
+         clonedRange.detach()
+      else if document.selection #IE
+        pos = if this.contentEditable() then this.getIEEditablePos() else this.getIEPos()
       else
         pos = inputor.selectionStart
+
       return pos
 
     setPos: (pos) ->
@@ -103,32 +105,32 @@
       mirror = new Mirror($inputor)
       at_rect = mirror.create(html).rect()
 
-      x = at_rect.left - $inputor.scrollLeft()
-      y = at_rect.top - $inputor.scrollTop()
-      h = at_rect.height
-
-      {left: x, top: y, height: h}
-
     getOffset: (pos) ->
       $inputor = @$inputor
-      if $inputor.is('textarea, input')
-        offset = $inputor.offset()
-        position = this.getPosition(pos)
-        offset =
-          left: offset.left + position.left
-          top: offset.top + position.top
-          height: position.height
-      else if this.contentEditable() and range = this.range()
-        clonedRange = range.cloneRange()
-        clonedRange.selectNodeContents(this.domInputor)
-        clonedRange.setStart(range.endContainer, range.endOffset - 1)
-        rect = clonedRange.getBoundingClientRect()
-        offset =
-          height: rect.height
-          left: rect.left + rect.width + $inputor.scrollLeft()
-          top: rect.top + $(window).scrollTop() + $inputor.scrollTop()
+      offset = $inputor.offset()
+      position = this.getPosition(pos)
+      offset =
+        left: offset.left + position.left
+        top: offset.top + position.top
+        height: position.height
 
-      offset
+    getEditableOffset: ->
+      offset = null
+      if window.getSelection and range = this.range()
+        clonedRange = range.cloneRange()
+        # NOTE: have to select a char to get the rect.
+        clonedRange.setStart(range.endContainer, Math.max(1, range.endOffset) - 1)
+        clonedRange.setEnd(range.endContainer, range.endOffset)
+        rect = clonedRange.getBoundingClientRect()
+        offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
+        clonedRange.detach()
+      else if document.selection # ie < 9
+        range = document.selection.createRange().duplicate()
+        range.moveStart "character", -1
+        rect = range.getBoundingClientRect()
+        offset = { height: rect.bottom - rect.top, left: rect.left, top: rect.top }
+
+      return offset
 
     getIEPosition: (pos) ->
       offset = this.getIEOffset pos
@@ -147,11 +149,24 @@
         range = document.selection.createRange()
         textRange.moveToBookmark range.getBookmark()
 
-      x = textRange.boundingLeft + @$inputor.scrollLeft()
-      y = textRange.boundingTop + $(window).scrollTop() + @$inputor.scrollTop()
+      x = textRange.boundingLeft
+      y = textRange.boundingTop
       h = textRange.boundingHeight
 
       {left: x, top: y, height: h}
+
+    range: ->
+      return unless window.getSelection
+      sel = window.getSelection()
+      if sel.rangeCount > 0 then sel.getRangeAt(0) else null
+
+    adjustOffset: (offset) ->
+      offset.top += $(window).scrollTop() + @$inputor.scrollTop()
+      offset.left += + $(window).scrollLeft() + @$inputor.scrollLeft()
+      offset
+
+    contentEditable: ->
+      !!(@domInputor.contentEditable && @domInputor.contentEditable == 'true')
 
 
   # @example
@@ -201,10 +216,7 @@
 
   methods =
     pos: (pos) ->
-      if pos
-        this.setPos pos
-      else
-        this.getPos()
+      if pos then this.setPos(pos) else this.getPos()
 
     position: (pos) ->
       if document.selection # for IE full
@@ -213,8 +225,10 @@
         this.getPosition pos
 
     offset: (pos) ->
-      if document.selection # for IE full
-        this.getIEOffset pos
+      if this.contentEditable()
+        this.adjustOffset this.getEditableOffset()
+      else if document.selection # for IE full
+        this.adjustOffset this.getIEOffset(pos)
       else
         this.getOffset pos
 

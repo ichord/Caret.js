@@ -33,21 +33,6 @@
         this.domInputor = this.$inputor[0];
       }
 
-      Caret.prototype.contentEditable = function() {
-        return !!(this.domInputor.contentEditable && this.domInputor.contentEditable === 'true');
-      };
-
-      Caret.prototype.range = function() {
-        var sel;
-
-        sel = window.getSelection();
-        if (sel.rangeCount > 0) {
-          return sel.getRangeAt(0);
-        } else {
-          return null;
-        }
-      };
-
       Caret.prototype.getIEPos = function() {
         var endRange, inputor, len, normalizedValue, pos, range, textInputRange;
 
@@ -70,19 +55,30 @@
         return pos;
       };
 
+      Caret.prototype.getIEEditablePos = function() {
+        var preCaretTextRange, textRange;
+
+        textRange = document.selection.createRange();
+        preCaretTextRange = document.body.createTextRange();
+        preCaretTextRange.moveToElementText(this.domInputor);
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        return preCaretTextRange.text.length;
+      };
+
       Caret.prototype.getPos = function() {
         var clonedRange, inputor, pos, range;
 
         inputor = this.domInputor;
         inputor.focus();
         pos = 0;
-        if (document.selection) {
-          pos = this.getIEPos();
-        } else if (this.contentEditable() && (range = this.range())) {
+        if (this.contentEditable() && (range = this.range())) {
           clonedRange = range.cloneRange();
           clonedRange.selectNodeContents(inputor);
           clonedRange.setEnd(range.endContainer, range.endOffset);
           pos = clonedRange.toString().length;
+          clonedRange.detach();
+        } else if (document.selection) {
+          pos = this.contentEditable() ? this.getIEEditablePos() : this.getIEPos();
         } else {
           pos = inputor.selectionStart;
         }
@@ -104,7 +100,7 @@
       };
 
       Caret.prototype.getPosition = function(pos) {
-        var $inputor, at_rect, format, h, html, mirror, start_range, x, y;
+        var $inputor, at_rect, format, html, mirror, start_range;
 
         $inputor = this.$inputor;
         format = function(value) {
@@ -117,38 +113,45 @@
         html = "<span>" + format(start_range) + "</span>";
         html += "<span id='caret'>|</span>";
         mirror = new Mirror($inputor);
-        at_rect = mirror.create(html).rect();
-        x = at_rect.left - $inputor.scrollLeft();
-        y = at_rect.top - $inputor.scrollTop();
-        h = at_rect.height;
-        return {
-          left: x,
-          top: y,
-          height: h
-        };
+        return at_rect = mirror.create(html).rect();
       };
 
       Caret.prototype.getOffset = function(pos) {
-        var $inputor, clonedRange, offset, position, range, rect;
+        var $inputor, offset, position;
 
         $inputor = this.$inputor;
-        if ($inputor.is('textarea, input')) {
-          offset = $inputor.offset();
-          position = this.getPosition(pos);
-          offset = {
-            left: offset.left + position.left,
-            top: offset.top + position.top,
-            height: position.height
-          };
-        } else if (this.contentEditable() && (range = this.range())) {
+        offset = $inputor.offset();
+        position = this.getPosition(pos);
+        return offset = {
+          left: offset.left + position.left,
+          top: offset.top + position.top,
+          height: position.height
+        };
+      };
+
+      Caret.prototype.getEditableOffset = function() {
+        var clonedRange, offset, range, rect;
+
+        offset = null;
+        if (window.getSelection && (range = this.range())) {
           clonedRange = range.cloneRange();
-          clonedRange.selectNodeContents(this.domInputor);
-          clonedRange.setStart(range.endContainer, range.endOffset - 1);
+          clonedRange.setStart(range.endContainer, Math.max(1, range.endOffset) - 1);
+          clonedRange.setEnd(range.endContainer, range.endOffset);
           rect = clonedRange.getBoundingClientRect();
           offset = {
             height: rect.height,
-            left: rect.left + rect.width + $inputor.scrollLeft(),
-            top: rect.top + $(window).scrollTop() + $inputor.scrollTop()
+            left: rect.left + rect.width,
+            top: rect.top
+          };
+          clonedRange.detach();
+        } else if (document.selection) {
+          range = document.selection.createRange().duplicate();
+          range.moveStart("character", -1);
+          rect = range.getBoundingClientRect();
+          offset = {
+            height: rect.bottom - rect.top,
+            left: rect.left,
+            top: rect.top
           };
         }
         return offset;
@@ -179,14 +182,38 @@
           range = document.selection.createRange();
           textRange.moveToBookmark(range.getBookmark());
         }
-        x = textRange.boundingLeft + this.$inputor.scrollLeft();
-        y = textRange.boundingTop + $(window).scrollTop() + this.$inputor.scrollTop();
+        x = textRange.boundingLeft;
+        y = textRange.boundingTop;
         h = textRange.boundingHeight;
         return {
           left: x,
           top: y,
           height: h
         };
+      };
+
+      Caret.prototype.range = function() {
+        var sel;
+
+        if (!window.getSelection) {
+          return;
+        }
+        sel = window.getSelection();
+        if (sel.rangeCount > 0) {
+          return sel.getRangeAt(0);
+        } else {
+          return null;
+        }
+      };
+
+      Caret.prototype.adjustOffset = function(offset) {
+        offset.top += $(window).scrollTop() + this.$inputor.scrollTop();
+        offset.left += +$(window).scrollLeft() + this.$inputor.scrollLeft();
+        return offset;
+      };
+
+      Caret.prototype.contentEditable = function() {
+        return !!(this.domInputor.contentEditable && this.domInputor.contentEditable === 'true');
       };
 
       return Caret;
@@ -257,8 +284,10 @@
         }
       },
       offset: function(pos) {
-        if (document.selection) {
-          return this.getIEOffset(pos);
+        if (this.contentEditable()) {
+          return this.adjustOffset(this.getEditableOffset());
+        } else if (document.selection) {
+          return this.adjustOffset(this.getIEOffset(pos));
         } else {
           return this.getOffset(pos);
         }
