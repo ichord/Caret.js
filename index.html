@@ -6,7 +6,7 @@
   <meta http-equiv="x-ua-compatible" content="IE=Edge"/>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script type="text/javascript" src="src/jquery.caret.js"></script>
-  <!-- <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'> -->
+  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
 
   <script type="text/javascript">
 
@@ -62,13 +62,13 @@
     margin: 10px 0;
     text-rendering: optimizelegibility;
   }
+  h2,h3 {
+    color: gray;
+  }
   strong {
     color: #424242;
   }
-  h1 {
-    margin-top: 0;
-    font-size:56px;
-  }
+
   a {
     color: #4183C4;
     text-decoration: none;
@@ -84,8 +84,17 @@
   header {
     margin-top:70px;
     margin-bottom: 50px;
-    text-align: center;
   }
+  header h1 {
+    text-align: center;
+    font-size:56px;
+  }
+  h1 i {
+    color: rgb(182, 180, 180);
+    font-style: normal;
+    font-weight: normal;
+  }
+
   .inputor {
     height: 160px;
     width: 90%;
@@ -94,6 +103,10 @@
     padding: 5px 8px;
     outline: 0 none;
     margin: 10px 0;
+    background: white;
+  }
+  .inputor:focus {
+    border: 1px solid rgb(6, 150, 247);
   }
 
   .coordinate-box {
@@ -110,6 +123,14 @@
     z-index: 999;
   }
 
+  footer {
+    margin: 30px 0;
+  }
+
+  .github {
+    text-align: center;
+  }
+
   </style>
 </head>
 
@@ -117,10 +138,11 @@
   <div class="container wrapper">
     <!-- <a id="github" href="https://github.com/ichord/Caret.js" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; z-index:999" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a> -->
     <header>
-      <h1>Caret.js</h1>
+      <h1>Caret<i>.js</i></h1>
     </header>
 
     <div id="main">
+      <h2>Textarea</h2>
       <textarea id="inputor" class="inputor">
 
 
@@ -128,13 +150,19 @@
                           Type something here for fun!!
 
       </textarea>
+      <h2>ContentEditable</h2>
       <div id="inputor2" class="inputor" contentEditable="true">
-Type Type Type <strong>Typeing</strong> T
+Hello, some <b>bold</b> and <i>italic</i> and <b><i>bold</i></b> text
       </div>
       <div class="coordinate-box"></div>
       <div class="cursor"></div>
+      <footer>
+        <h2>
+          -> <a class="github" href="https://github.com/ichord/Caret.js">GitHub!</a>
+        </h2>
+      </footer>
     </div>
-
   </div>
 </body>
+
 </html>
