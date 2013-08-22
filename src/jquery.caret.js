@@ -207,6 +207,9 @@
       };
 
       Caret.prototype.adjustOffset = function(offset) {
+        if (!offset) {
+          return;
+        }
         offset.top += $(window).scrollTop() + this.$inputor.scrollTop();
         offset.left += +$(window).scrollLeft() + this.$inputor.scrollLeft();
         return offset;

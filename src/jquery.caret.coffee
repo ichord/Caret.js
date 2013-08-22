@@ -161,6 +161,7 @@
       if sel.rangeCount > 0 then sel.getRangeAt(0) else null
 
     adjustOffset: (offset) ->
+      return unless offset
       offset.top += $(window).scrollTop() + @$inputor.scrollTop()
       offset.left += + $(window).scrollLeft() + @$inputor.scrollLeft()
       offset
