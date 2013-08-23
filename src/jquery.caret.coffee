@@ -29,84 +29,84 @@
 
   pluginName = 'caret'
 
-  class Caret
+  class EditableCaret
+    constructor: (@$inputor) ->
+      @domInputor = @$inputor[0]
+
+    # NOTE: Duck type
+    setPos: (pos) -> @domInputor
+    getIEPosition: -> $.noop()
+    getPosition: -> $.noop()
+
+    getIEPos: ->
+      textRange = document.selection.createRange()
+      preCaretTextRange = document.body.createTextRange()
+      preCaretTextRange.moveToElementText(@domInputor)
+      preCaretTextRange.setEndPoint("EndToEnd", textRange)
+      preCaretTextRange.text.length
+
+    getPos: ->
+      if range = this.range() # Major Browser and IE > 10
+        clonedRange = range.cloneRange()
+        clonedRange.selectNodeContents(@domInputor)
+        clonedRange.setEnd(range.endContainer, range.endOffset)
+        pos = clonedRange.toString().length
+        clonedRange.detach()
+        pos
+      else if document.selection #IE < 9
+        this.getIEPos()
+
+    getOffset: (pos) ->
+      offset = null
+      if window.getSelection and range = this.range()
+        clonedRange = range.cloneRange()
+        # NOTE: have to select a char to get the rect.
+        clonedRange.setStart(range.endContainer, Math.max(1, range.endOffset) - 1)
+        clonedRange.setEnd(range.endContainer, range.endOffset)
+        rect = clonedRange.getBoundingClientRect()
+        offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
+        clonedRange.detach()
+        offset
+      else if document.selection # ie < 9
+        range = document.selection.createRange().duplicate()
+        range.moveStart "character", -1
+        rect = range.getBoundingClientRect()
+        offset = { height: rect.bottom - rect.top, left: rect.left, top: rect.top }
+
+      Utils.adjustOffset offset, @$inputor
+
+    range: ->
+      return unless window.getSelection
+      sel = window.getSelection()
+      if sel.rangeCount > 0 then sel.getRangeAt(0) else null
+
+
+  class InputCaret
 
     constructor: (@$inputor) ->
       @domInputor = @$inputor[0]
 
-    getPos: ->
+    getIEPos: ->
+      # https://github.com/ichord/Caret.js/wiki/Get-pos-of-caret-in-IE
       inputor = @domInputor
-      inputor.focus()
+      range = document.selection.createRange()
+      pos = 0
+      # selection should in the inputor.
+      if range and range.parentElement() is inputor
+        normalizedValue = inputor.value.replace /\r\n/g, "\n"
+        len = normalizedValue.length
+        textInputRange = inputor.createTextRange()
+        textInputRange.moveToBookmark range.getBookmark()
+        endRange = inputor.createTextRange()
+        endRange.collapse false
+        if textInputRange.compareEndPoints("StartToEnd", endRange) > -1
+          pos = len
+        else
+          pos = -textInputRange.moveStart "character", -len
+      pos
 
-      if document.selection #IE
-        # reference: http://tinyurl.com/86pyc4s
-
-        ###
-        #assume we select "HATE" in the inputor such as textarea -> { }.
-         *               start end-point.
-         *              /
-         * <  I really [HATE] IE   > between the brackets is the selection range.
-         *                   \
-         *                    end end-point.
-         ###
-
-        range = document.selection.createRange()
-        pos = 0
-        # selection should in the inputor.
-        if range and range.parentElement() is inputor
-          normalizedValue = inputor.value.replace /\r\n/g, "\n"
-          ### SOMETIME !!!
-           "/r/n" is counted as two char.
-            one line is two, two will be four. balalala.
-            so we have to using the normalized one's length.;
-          ###
-          len = normalizedValue.length
-          ###
-             <[  I really HATE IE   ]>:
-              the whole content in the inputor will be the textInputRange.
-          ###
-          textInputRange = inputor.createTextRange()
-          ###                 _here must be the position of bookmark.
-                           /
-             <[  I really [HATE] IE   ]>
-              [---------->[           ] : this is what moveToBookmark do.
-             <   I really [[HATE] IE   ]> : here is result.
-                            \ two brackets in should be in line.
-          ###
-          textInputRange.moveToBookmark range.getBookmark()
-          endRange = inputor.createTextRange()
-          ###  [--------------------->[] : if set false all end-point goto end.
-            <  I really [[HATE] IE  []]>
-          ###
-          endRange.collapse false
-          ###
-                          ___VS____
-                         /         \
-           <   I really [[HATE] IE []]>
-                                    \_endRange end-point.
-
-          " > -1" mean the start end-point will be the same or right to the end end-point
-         * simplelly, all in the end.
-          ####
-          if textInputRange.compareEndPoints("StartToEnd", endRange) > -1
-            #TextRange object will miss "\r\n". So, we count it ourself.
-            start = end = len
-          else
-            ###
-                    I really |HATE] IE   ]>
-                           <-|
-                  I really[ [HATE] IE   ]>
-                        <-[
-                I reall[y  [HATE] IE   ]>
-
-              will return how many unit have moved.
-            ###
-            start = -textInputRange.moveStart "character", -len
-            end = -textInputRange.moveEnd "character", -len
-
-      else
-        start = inputor.selectionStart
-      return start
+    getPos: ->
+      if document.selection then this.getIEPos() else @domInputor.selectionStart
 
     setPos: (pos) ->
       inputor = @domInputor
@@ -114,8 +114,35 @@
         range = inputor.createTextRange()
         range.move "character", pos
         range.select()
-      else
+      else if inputor.setSelectionRange
         inputor.setSelectionRange pos, pos
+      inputor
+
+    getIEOffset: (pos) ->
+      textRange = @domInputor.createTextRange()
+      if pos
+        textRange.move('character', pos)
+      else
+        range = document.selection.createRange()
+        textRange.moveToBookmark range.getBookmark()
+
+      x = textRange.boundingLeft
+      y = textRange.boundingTop
+      h = textRange.boundingHeight
+
+      {left: x, top: y, height: h}
+
+    getOffset: (pos) ->
+      $inputor = @$inputor
+      if document.selection
+        Utils.adjustOffset this.getIEOffset(pos), $inputor
+      else
+        offset = $inputor.offset()
+        position = this.getPosition(pos)
+        offset =
+          left: offset.left + position.left
+          top: offset.top + position.top
+          height: position.height
 
     getPosition: (pos)->
       $inputor = @$inputor
@@ -134,24 +161,6 @@
       mirror = new Mirror($inputor)
       at_rect = mirror.create(html).rect()
 
-      x = at_rect.left - $inputor.scrollLeft()
-      y = at_rect.top - $inputor.scrollTop()
-      h = at_rect.height
-
-      {left: x, top: y, height: h}
-
-    getOffset: (pos) ->
-      $inputor = @$inputor
-
-      offset = $inputor.offset()
-      position = this.getPosition(pos)
-
-      x = offset.left + position.left
-      y = offset.top + position.top
-      h = position.height
-
-      {left: x, top: y, height: h}
-
     getIEPosition: (pos) ->
       offset = this.getIEOffset pos
       inputorOffset = @$inputor.offset()
@@ -160,21 +169,6 @@
       h = offset.height
 
       {left: x, top: y, height: h}
-
-    getIEOffset: (pos) ->
-      textRange = @domInputor.createTextRange()
-      if pos
-        textRange.move('character', pos)
-      else
-        range = document.selection.createRange()
-        textRange.moveToBookmark range.getBookmark()
-
-      x = textRange.boundingLeft + @$inputor.scrollLeft()
-      y = textRange.boundingTop + $(window).scrollTop() + @$inputor.scrollTop()
-      h = textRange.boundingHeight
-
-      {left: x, top: y, height: h}
-
 
   # @example
   #   mirror = new Mirror($("textarea#inputor"))
@@ -220,34 +214,33 @@
       @$mirror.remove()
       rect
 
+  Utils =
+    adjustOffset: (offset, $inputor) ->
+      return unless offset
+      offset.top += $(window).scrollTop() + $inputor.scrollTop()
+      offset.left += + $(window).scrollLeft() + $inputor.scrollLeft()
+      offset
+
+    contentEditable: ($inputor)->
+      !!($inputor[0].contentEditable && $inputor[0].contentEditable == 'true')
 
   methods =
     pos: (pos) ->
-      if pos
-        this.setPos pos
-      else
-        this.getPos()
+      if pos then this.setPos pos else this.getPos()
 
     position: (pos) ->
-      if document.selection # for IE full
-        this.getIEPosition pos
-      else
-        this.getPosition pos
+      if document.selection then this.getIEPosition pos else this.getPosition pos
 
-    offset: (pos) ->
-      if document.selection # for IE full
-        this.getIEOffset pos
-      else
-        this.getOffset pos
-
+    offset: (pos) -> this.getOffset(pos)
 
   $.fn.caret = (method) ->
-    caret = new Caret this
-
+    caret = if Utils.contentEditable(this) then new EditableCaret(this) else new InputCaret(this)
     if methods[method]
       methods[method].apply caret, Array::slice.call(arguments, 1)
     else
       $.error "Method #{method} does not exist on jQuery.caret"
 
-
-
+  $.fn.caret.EditableCaret = EditableCaret
+  $.fn.caret.InputCaret = InputCaret
+  $.fn.caret.Utils = Utils
+  $.fn.caret.apis = methods
