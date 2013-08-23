@@ -29,7 +29,59 @@
 
   pluginName = 'caret'
 
-  class Caret
+  class EditableCaret
+    constructor: (@$inputor) ->
+      @domInputor = @$inputor[0]
+
+    # NOTE: Duck type
+    setPos: (pos) -> @domInputor
+    getIEPosition: -> $.noop()
+    getPosition: -> $.noop()
+
+    getIEPos: ->
+      textRange = document.selection.createRange()
+      preCaretTextRange = document.body.createTextRange()
+      preCaretTextRange.moveToElementText(@domInputor)
+      preCaretTextRange.setEndPoint("EndToEnd", textRange)
+      preCaretTextRange.text.length
+
+    getPos: ->
+      if range = this.range() # Major Browser and IE > 10
+        clonedRange = range.cloneRange()
+        clonedRange.selectNodeContents(@domInputor)
+        clonedRange.setEnd(range.endContainer, range.endOffset)
+        pos = clonedRange.toString().length
+        clonedRange.detach()
+        pos
+      else if document.selection #IE < 9
+        this.getIEPos()
+
+    getOffset: (pos) ->
+      offset = null
+      if window.getSelection and range = this.range()
+        clonedRange = range.cloneRange()
+        # NOTE: have to select a char to get the rect.
+        clonedRange.setStart(range.endContainer, Math.max(1, range.endOffset) - 1)
+        clonedRange.setEnd(range.endContainer, range.endOffset)
+        rect = clonedRange.getBoundingClientRect()
+        offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
+        clonedRange.detach()
+        offset
+      else if document.selection # ie < 9
+        range = document.selection.createRange().duplicate()
+        range.moveStart "character", -1
+        rect = range.getBoundingClientRect()
+        offset = { height: rect.bottom - rect.top, left: rect.left, top: rect.top }
+
+      Utils.adjustOffset offset, @$inputor
+
+    range: ->
+      return unless window.getSelection
+      sel = window.getSelection()
+      if sel.rangeCount > 0 then sel.getRangeAt(0) else null
+
+
+  class InputCaret
 
     constructor: (@$inputor) ->
       @domInputor = @$inputor[0]
@@ -53,30 +105,8 @@
           pos = -textInputRange.moveStart "character", -len
       pos
 
-    getIEEditablePos: ->
-      textRange = document.selection.createRange()
-      preCaretTextRange = document.body.createTextRange()
-      preCaretTextRange.moveToElementText(@domInputor)
-      preCaretTextRange.setEndPoint("EndToEnd", textRange)
-      preCaretTextRange.text.length
-
     getPos: ->
-      inputor = @domInputor
-      inputor.focus()
-      pos = 0
-
-      if this.contentEditable() and (range = this.range())
-         clonedRange = range.cloneRange()
-         clonedRange.selectNodeContents(inputor)
-         clonedRange.setEnd(range.endContainer, range.endOffset)
-         pos = clonedRange.toString().length
-         clonedRange.detach()
-      else if document.selection #IE
-        pos = if this.contentEditable() then this.getIEEditablePos() else this.getIEPos()
-      else
-        pos = inputor.selectionStart
-
-      return pos
+      if document.selection then this.getIEPos() else @domInputor.selectionStart
 
     setPos: (pos) ->
       inputor = @domInputor
@@ -87,6 +117,32 @@
       else if inputor.setSelectionRange
         inputor.setSelectionRange pos, pos
       inputor
+
+    getIEOffset: (pos) ->
+      textRange = @domInputor.createTextRange()
+      if pos
+        textRange.move('character', pos)
+      else
+        range = document.selection.createRange()
+        textRange.moveToBookmark range.getBookmark()
+
+      x = textRange.boundingLeft
+      y = textRange.boundingTop
+      h = textRange.boundingHeight
+
+      {left: x, top: y, height: h}
+
+    getOffset: (pos) ->
+      $inputor = @$inputor
+      if document.selection
+        Utils.adjustOffset this.getIEOffset(pos), $inputor
+      else
+        offset = $inputor.offset()
+        position = this.getPosition(pos)
+        offset =
+          left: offset.left + position.left
+          top: offset.top + position.top
+          height: position.height
 
     getPosition: (pos)->
       $inputor = @$inputor
@@ -105,33 +161,6 @@
       mirror = new Mirror($inputor)
       at_rect = mirror.create(html).rect()
 
-    getOffset: (pos) ->
-      $inputor = @$inputor
-      offset = $inputor.offset()
-      position = this.getPosition(pos)
-      offset =
-        left: offset.left + position.left
-        top: offset.top + position.top
-        height: position.height
-
-    getEditableOffset: ->
-      offset = null
-      if window.getSelection and range = this.range()
-        clonedRange = range.cloneRange()
-        # NOTE: have to select a char to get the rect.
-        clonedRange.setStart(range.endContainer, Math.max(1, range.endOffset) - 1)
-        clonedRange.setEnd(range.endContainer, range.endOffset)
-        rect = clonedRange.getBoundingClientRect()
-        offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
-        clonedRange.detach()
-      else if document.selection # ie < 9
-        range = document.selection.createRange().duplicate()
-        range.moveStart "character", -1
-        rect = range.getBoundingClientRect()
-        offset = { height: rect.bottom - rect.top, left: rect.left, top: rect.top }
-
-      return offset
-
     getIEPosition: (pos) ->
       offset = this.getIEOffset pos
       inputorOffset = @$inputor.offset()
@@ -140,35 +169,6 @@
       h = offset.height
 
       {left: x, top: y, height: h}
-
-    getIEOffset: (pos) ->
-      textRange = @domInputor.createTextRange()
-      if pos
-        textRange.move('character', pos)
-      else
-        range = document.selection.createRange()
-        textRange.moveToBookmark range.getBookmark()
-
-      x = textRange.boundingLeft
-      y = textRange.boundingTop
-      h = textRange.boundingHeight
-
-      {left: x, top: y, height: h}
-
-    range: ->
-      return unless window.getSelection
-      sel = window.getSelection()
-      if sel.rangeCount > 0 then sel.getRangeAt(0) else null
-
-    adjustOffset: (offset) ->
-      return unless offset
-      offset.top += $(window).scrollTop() + @$inputor.scrollTop()
-      offset.left += + $(window).scrollLeft() + @$inputor.scrollLeft()
-      offset
-
-    contentEditable: ->
-      !!(@domInputor.contentEditable && @domInputor.contentEditable == 'true')
-
 
   # @example
   #   mirror = new Mirror($("textarea#inputor"))
@@ -214,30 +214,33 @@
       @$mirror.remove()
       rect
 
+  Utils =
+    adjustOffset: (offset, $inputor) ->
+      return unless offset
+      offset.top += $(window).scrollTop() + $inputor.scrollTop()
+      offset.left += + $(window).scrollLeft() + $inputor.scrollLeft()
+      offset
+
+    contentEditable: ($inputor)->
+      !!($inputor[0].contentEditable && $inputor[0].contentEditable == 'true')
 
   methods =
     pos: (pos) ->
-      if pos then this.setPos(pos) else this.getPos()
+      if pos then this.setPos pos else this.getPos()
 
     position: (pos) ->
-      if document.selection # for IE full
-        this.getIEPosition pos
-      else
-        this.getPosition pos
+      if document.selection then this.getIEPosition pos else this.getPosition pos
 
-    offset: (pos) ->
-      if this.contentEditable()
-        this.adjustOffset this.getEditableOffset()
-      else if document.selection # for IE full
-        this.adjustOffset this.getIEOffset(pos)
-      else
-        this.getOffset pos
-
+    offset: (pos) -> this.getOffset(pos)
 
   $.fn.caret = (method) ->
-    caret = new Caret this
-
+    caret = if Utils.contentEditable(this) then new EditableCaret(this) else new InputCaret(this)
     if methods[method]
       methods[method].apply caret, Array::slice.call(arguments, 1)
     else
       $.error "Method #{method} does not exist on jQuery.caret"
+
+  $.fn.caret.EditableCaret = EditableCaret
+  $.fn.caret.InputCaret = InputCaret
+  $.fn.caret.Utils = Utils
+  $.fn.caret.apis = methods

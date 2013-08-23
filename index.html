@@ -11,38 +11,34 @@
   <script type="text/javascript">
 
   $(function () {
-    $inputor = $('#inputor');
-    $inputor2 = $('#inputor2')
+    $input = $('#input');
+    $editable = $('#editable')
     $corbox = $('.coordinate-box');
     $cursor = $('.cursor');
 
-    function cal() {
-      var offset = $inputor.caret('offset');
-      if(offset) {
+    function inputOffset() {
+      var offset = $input.caret('offset');
+      if(offset)
         resizeBox(offset);
-      }
       return offset
     }
-    function cal2() {
-      var offset = $inputor2.caret('offset');
-
+    function editableOffset() {
+      var offset = $editable.caret('offset');
       if (offset)
         resizeBox(offset);
-
     }
     function resizeBox (offset) {
       $corbox.css({'width': offset.left, 'height': offset.top})
       $cursor.offset({left: offset.left, top: offset.top + offset.height + 2})
         .html("&nbsp; left: " + offset.left + ", " + "top: " + offset.top + "&nbsp;" + "height: " + offset.height);
     }
-    $inputor.on('focus keyup', function(){
-      cal()
+    $input.on('focus keyup mouseup', function(){
+      inputOffset();
     });
-    $inputor2.on('focus keyup mouseup', function(){
-      cal2()
+    $editable.on('focus keyup mouseup', function(){
+      editableOffset();
     });
-    $inputor.caret('pos', 53)
-    $inputor.focus();
+    $input.caret('pos', 53).focus();
   });
   </script>
 
@@ -143,7 +139,7 @@
 
     <div id="main">
       <h2>Textarea</h2>
-      <textarea id="inputor" class="inputor">
+      <textarea id="input" class="inputor">
 
 
 
@@ -151,14 +147,14 @@
 
       </textarea>
       <h2>ContentEditable</h2>
-      <div id="inputor2" class="inputor" contentEditable="true">
+      <div id="editable" class="inputor" contentEditable="true">
 Hello, some <b>bold</b> and <i>italic</i> and <b><i>bold</i></b> text
       </div>
       <div class="coordinate-box"></div>
       <div class="cursor"></div>
       <footer>
         <h2>
-          -> <a class="github" href="https://github.com/ichord/Caret.js">GitHub!</a>
+          -> <a class="github" href="https://github.com/ichord/Caret.js">Fork me on GitHub!</a>
         </h2>
       </footer>
     </div>
