@@ -45,7 +45,7 @@
         return $.noop();
       };
 
-      EditableCaret.prototype.getIEPos = function() {
+      EditableCaret.prototype.getOldIEPos = function() {
         var preCaretTextRange, textRange;
 
         textRange = document.selection.createRange();
@@ -66,8 +66,21 @@
           clonedRange.detach();
           return pos;
         } else if (document.selection) {
-          return this.getIEPos();
+          return this.getOldIEPos();
         }
+      };
+
+      EditableCaret.prototype.getOldIEOffset = function() {
+        var range, rect;
+
+        range = document.selection.createRange().duplicate();
+        range.moveStart("character", -1);
+        rect = range.getBoundingClientRect();
+        return {
+          height: rect.bottom - rect.top,
+          left: rect.left,
+          top: rect.top
+        };
       };
 
       EditableCaret.prototype.getOffset = function(pos) {
@@ -87,14 +100,7 @@
           clonedRange.detach();
           offset;
         } else if (document.selection) {
-          range = document.selection.createRange().duplicate();
-          range.moveStart("character", -1);
-          rect = range.getBoundingClientRect();
-          offset = {
-            height: rect.bottom - rect.top,
-            left: rect.left,
-            top: rect.top
-          };
+          this.getOldIEOffset();
         }
         return Utils.adjustOffset(offset, this.$inputor);
       };

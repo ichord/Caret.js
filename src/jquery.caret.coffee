@@ -38,7 +38,7 @@
     getIEPosition: -> $.noop()
     getPosition: -> $.noop()
 
-    getIEPos: ->
+    getOldIEPos: ->
       textRange = document.selection.createRange()
       preCaretTextRange = document.body.createTextRange()
       preCaretTextRange.moveToElementText(@domInputor)
@@ -54,7 +54,13 @@
         clonedRange.detach()
         pos
       else if document.selection #IE < 9
-        this.getIEPos()
+        this.getOldIEPos()
+
+    getOldIEOffset: ->
+      range = document.selection.createRange().duplicate()
+      range.moveStart "character", -1
+      rect = range.getBoundingClientRect()
+      { height: rect.bottom - rect.top, left: rect.left, top: rect.top }
 
     getOffset: (pos) ->
       offset = null
@@ -68,10 +74,7 @@
         clonedRange.detach()
         offset
       else if document.selection # ie < 9
-        range = document.selection.createRange().duplicate()
-        range.moveStart "character", -1
-        rect = range.getBoundingClientRect()
-        offset = { height: rect.bottom - rect.top, left: rect.left, top: rect.top }
+        this.getOldIEOffset()
 
       Utils.adjustOffset offset, @$inputor
 
