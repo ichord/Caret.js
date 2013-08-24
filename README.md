@@ -19,6 +19,7 @@ Usage
 ```javascript
 
 // Get caret position
+// not working in `contentEditable` mode
 $('#inputor').caret('position'); // => {left: 15, top: 30, height: 20}
 
 // Get caret offset
@@ -26,9 +27,11 @@ $('#inputor').caret('offset'); // => {left: 300, top: 400, height: 20}
 
 var fixPos = 20
 // Get position of the 20th char in the inputor.
+// not working in `contentEditable` mode
 $('#inputor').caret('position', fixPos);
 
 // Get offset of the 20th char.
+// not working in `contentEditable` mode
 $('#inputor').caret('offset', fixPos);
 
 // more
