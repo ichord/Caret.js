@@ -88,8 +88,11 @@
 
         offset = null;
         if (window.getSelection && (range = this.range())) {
+          if (range.endOffset - 1 < 0) {
+            return null;
+          }
           clonedRange = range.cloneRange();
-          clonedRange.setStart(range.endContainer, Math.max(1, range.endOffset) - 1);
+          clonedRange.setStart(range.endContainer, range.endOffset - 1);
           clonedRange.setEnd(range.endContainer, range.endOffset);
           rect = clonedRange.getBoundingClientRect();
           offset = {

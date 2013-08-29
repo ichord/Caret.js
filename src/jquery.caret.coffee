@@ -65,9 +65,10 @@
     getOffset: (pos) ->
       offset = null
       if window.getSelection and range = this.range()
+        return null if range.endOffset - 1 < 0
         clonedRange = range.cloneRange()
         # NOTE: have to select a char to get the rect.
-        clonedRange.setStart(range.endContainer, Math.max(1, range.endOffset) - 1)
+        clonedRange.setStart(range.endContainer, range.endOffset - 1)
         clonedRange.setEnd(range.endContainer, range.endOffset)
         rect = clonedRange.getBoundingClientRect()
         offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
