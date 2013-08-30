@@ -4,12 +4,13 @@
 <head>
   <title>Caret.js</title>
   <meta http-equiv="x-ua-compatible" content="IE=Edge"/>
+  <meta name="viewport" content="width=device-width initial-scale=1.0 user-scalable=no">
+
+  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script type="text/javascript" src="src/jquery.caret.js"></script>
-  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
 
   <script type="text/javascript">
-
   $(function () {
     $input = $('#input');
     $editable = $('#editable')
@@ -26,6 +27,7 @@
       var offset = $editable.caret('offset');
       if (offset)
         resizeBox(offset);
+      return offset
     }
     function resizeBox (offset) {
       $corbox.css({'width': offset.left, 'height': offset.top})
@@ -37,6 +39,12 @@
     });
     $editable.on('focus keyup mouseup', function(){
       editableOffset();
+    });
+    $(window).resize(function() {
+      if ($input.is(":focus"))
+        inputOffset();
+      else
+        editableOffset();
     });
     $input.caret('pos', 53).focus();
   });
@@ -61,22 +69,6 @@
   h2,h3 {
     color: gray;
   }
-  strong {
-    color: #424242;
-  }
-
-  a {
-    color: #4183C4;
-    text-decoration: none;
-  }
-  a:hover {
-    text-decoration: underline;
-  }
-  .wrapper {
-    width: 750px;
-    padding: 20px;
-    margin: 0 auto;
-  }
   header {
     margin-top:70px;
     margin-bottom: 50px;
@@ -89,6 +81,35 @@
     color: rgb(182, 180, 180);
     font-style: normal;
     font-weight: normal;
+  }
+
+  a {
+    color: #4183C4;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  strong {
+    color: #424242;
+  }
+
+  .wrapper {
+    width: 55%;
+    padding: 20px;
+    margin: 0 auto;
+  }
+
+  @media only screen and (max-width: 600px) {
+    .wrapper {
+      width: 95%;
+    }
+  }
+
+  @media only screen and (max-width: 1120px) {
+    .wrapper {
+      width: 80%;
+    }
   }
 
   .inputor {
@@ -105,6 +126,14 @@
     border: 1px solid rgb(6, 150, 247);
   }
 
+  .github {
+    text-align: center;
+  }
+
+  footer {
+    margin: 30px 0;
+  }
+
   .coordinate-box {
     border-right: 2px dashed gray;
     border-bottom: 2px dashed gray;
@@ -117,14 +146,7 @@
     border: 2px solid gray;
     position: absolute;
     z-index: 999;
-  }
-
-  footer {
-    margin: 30px 0;
-  }
-
-  .github {
-    text-align: center;
+    margin: 30px;
   }
 
   </style>
