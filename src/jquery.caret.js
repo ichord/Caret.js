@@ -33,6 +33,16 @@
       }
 
       EditableCaret.prototype.setPos = function(pos) {
+        var clonedRange, range, sel;
+        sel = window.getSelection();
+        if (range = this.range()) {
+          clonedRange = range.cloneRange();
+          clonedRange.selectNodeContents(this.domInputor);
+          clonedRange.setStart(range.endContainer, pos);
+          clonedRange.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(clonedRange);
+        }
         return this.domInputor;
       };
 
