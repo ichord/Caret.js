@@ -35,16 +35,16 @@
 
     # NOTE: Duck type
     setPos: (pos) ->
-        sel = window.getSelection();
-        if range = @range()
-            clonedRange = range.cloneRange()
-            clonedRange.selectNodeContents(@domInputor)
-            clonedRange.setStart(range.endContainer, pos)
-            clonedRange.collapse(true)
-            sel.removeAllRanges()
-            sel.addRange(clonedRange)
+      sel = window.getSelection();
+      if range = @range()
+        clonedRange = range.cloneRange()
+        clonedRange.selectNodeContents(@domInputor)
+        clonedRange.setStart(range.endContainer, pos)
+        clonedRange.collapse(true)
+        sel.removeAllRanges()
+        sel.addRange(clonedRange)
 
-        @domInputor
+      @domInputor
 
     getIEPosition: -> $.noop()
     getPosition: -> $.noop()
