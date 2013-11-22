@@ -34,8 +34,8 @@
 
       EditableCaret.prototype.setPos = function(pos) {
         var clonedRange, range, sel;
-        sel = window.getSelection();
-        if (range = this.range()) {
+        if (window.getSelection && (range = this.range())) {
+          sel = window.getSelection();
           clonedRange = range.cloneRange();
           clonedRange.selectNodeContents(this.domInputor);
           clonedRange.setStart(range.endContainer, pos);

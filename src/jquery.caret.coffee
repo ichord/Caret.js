@@ -35,8 +35,8 @@
 
     # NOTE: Duck type
     setPos: (pos) ->
-      sel = window.getSelection();
-      if range = @range()
+      if window.getSelection and range = @range()
+        sel = window.getSelection()
         clonedRange = range.cloneRange()
         clonedRange.selectNodeContents(@domInputor)
         clonedRange.setStart(range.endContainer, pos)
