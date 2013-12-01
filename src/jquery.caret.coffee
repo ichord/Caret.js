@@ -77,7 +77,11 @@
       else if document.selection # ie < 9
         this.getOldIEOffset()
 
-      Utils.adjustOffset offset, @$inputor
+      if offset
+        offset.top += $(window).scrollTop()
+        offset.left += $(window).scrollLeft()
+
+      offset
 
     range: ->
       return unless window.getSelection
@@ -139,13 +143,16 @@
     getOffset: (pos) ->
       $inputor = @$inputor
       if document.selection
-        Utils.adjustOffset this.getIEOffset(pos), $inputor
+        offset = this.getIEOffset(pos)
+        offset.top += $(window).scrollTop() + $inputor.scrollTop()
+        offset.left += $(window).scrollLeft() + $inputor.scrollLeft()
+        offset
       else
         offset = $inputor.offset()
         position = this.getPosition(pos)
         offset =
-          left: offset.left + position.left
-          top: offset.top + position.top
+          left: offset.left + position.left - $inputor.scrollLeft()
+          top: offset.top + position.top - $inputor.scrollTop()
           height: position.height
 
     getPosition: (pos)->
@@ -221,8 +228,8 @@
   Utils =
     adjustOffset: (offset, $inputor) ->
       return unless offset
-      offset.top += $(window).scrollTop() + $inputor.scrollTop()
-      offset.left += + $(window).scrollLeft() + $inputor.scrollLeft()
+      offset.top += $(window).scrollTop()
+      offset.left += $(window).scrollLeft()
       offset
 
     contentEditable: ($inputor)->
