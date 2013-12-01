@@ -1,3 +1,7 @@
+### v0.0.4
+
+* fix scrolling problem
+
 ### v0.0.2
 
 * support `contentEditable` mode
