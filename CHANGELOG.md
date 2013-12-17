@@ -1,3 +1,8 @@
+### v0.0.5
+
+* aef0aa4 fix IE input position error
+* 4a4f7f7 fix contenteditable null value bug
+
 ### v0.0.4
 
 * fix scrolling problem
