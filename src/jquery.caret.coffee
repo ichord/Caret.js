@@ -63,7 +63,6 @@
       { height: rect.bottom - rect.top, left: rect.left, top: rect.top }
 
     getOffset: (pos) ->
-      offset = null
       if window.getSelection and range = this.range()
         return null if range.endOffset - 1 < 0
         clonedRange = range.cloneRange()
@@ -73,9 +72,8 @@
         rect = clonedRange.getBoundingClientRect()
         offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
         clonedRange.detach()
-        offset
       else if document.selection # ie < 9
-        this.getOldIEOffset()
+        offset = this.getOldIEOffset()
 
       if offset
         offset.top += $(window).scrollTop()
