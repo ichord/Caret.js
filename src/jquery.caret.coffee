@@ -128,11 +128,8 @@
 
     getIEOffset: (pos) ->
       textRange = @domInputor.createTextRange()
-      if pos
-        textRange.move('character', pos)
-      else
-        range = document.selection.createRange()
-        textRange.moveToBookmark range.getBookmark()
+      pos ||= this.getPos()
+      textRange.move('character', pos)
 
       x = textRange.boundingLeft
       y = textRange.boundingTop

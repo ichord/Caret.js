@@ -172,14 +172,10 @@
       };
 
       InputCaret.prototype.getIEOffset = function(pos) {
-        var h, range, textRange, x, y;
+        var h, textRange, x, y;
         textRange = this.domInputor.createTextRange();
-        if (pos) {
-          textRange.move('character', pos);
-        } else {
-          range = document.selection.createRange();
-          textRange.moveToBookmark(range.getBookmark());
-        }
+        pos || (pos = this.getPos());
+        textRange.move('character', pos);
         x = textRange.boundingLeft;
         y = textRange.boundingTop;
         h = textRange.boundingHeight;
