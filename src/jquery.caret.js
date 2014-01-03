@@ -24,7 +24,7 @@
     }
   })(function($) {
     "use strict";
-    var EditableCaret, InputCaret, Mirror, Utils, methods, pluginName;
+    var EditableCaret, InputCaret, Mirror, Utils, methods, pluginName, cWin;
     pluginName = 'caret';
     EditableCaret = (function() {
       function EditableCaret($inputor) {
@@ -81,7 +81,7 @@
 
       EditableCaret.prototype.getOffset = function(pos) {
         var clonedRange, offset, range, rect;
-        if (window.getSelection && (range = this.range())) {
+        if (cWin.getSelection && (range = this.range())) {
           if (range.endOffset - 1 < 0) {
             return null;
           }
@@ -107,10 +107,10 @@
 
       EditableCaret.prototype.range = function() {
         var sel;
-        if (!window.getSelection) {
+        if (!cWin.getSelection) {
           return;
         }
-        sel = window.getSelection();
+        sel = cWin.getSelection();
         if (sel.rangeCount > 0) {
           return sel.getRangeAt(0);
         } else {
@@ -315,11 +315,12 @@
         return this.getOffset(pos);
       }
     };
-    $.fn.caret = function(method) {
+    $.fn.caret = function(method, aWin) {
       var caret;
+      cWin = aWin;
       caret = Utils.contentEditable(this) ? new EditableCaret(this) : new InputCaret(this);
       if (methods[method]) {
-        return methods[method].apply(caret, Array.prototype.slice.call(arguments, 1));
+        return methods[method].apply(caret, Array.prototype.slice.call(arguments, 2));
       } else {
         return $.error("Method " + method + " does not exist on jQuery.caret");
       }
