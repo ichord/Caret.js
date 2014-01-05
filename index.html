@@ -9,6 +9,8 @@
   <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script type="text/javascript" src="src/jquery.caret.js"></script>
+  <!-- // <script type="text/javascript" src="ckeditor/ckeditor.js"></script> -->
+  <!-- // <script type="text/javascript" src="http://cdn.staticfile.org/ckeditor/4.2/ckeditor.js"></script> -->
 
   <script type="text/javascript">
   $(function () {
@@ -47,6 +49,27 @@
         editableOffset();
     });
     $input.caret('pos', 53).focus();
+
+    // CKEDITOR.config.toolbar = [[ 'Source', '-', 'Bold', 'Italic' ]];
+    // CKEDITOR.replace( 'ckEditor', {
+    // });
+    // CKEDITOR.instances.ckEditor.on('instanceReady', function() {
+    //   ifr = $('.cke_wysiwyg_frame')[0];
+    //   $ckBody = $('body', ifr.contentDocument);
+    //   $ckBody.on('keyup mouseup', function() {
+    //     offset = $ckBody.caret('offset');
+    //     resizeBox(offset);
+    //   });
+    ifr = $('#iframe1')[0];
+    ifrBody = ifr.contentDocument.body;
+    ifrBody.contentEditable = true;
+    ifrBody.id = 'ifrBody';
+    ifrBody.innerHTML = 'For <strong>WYSIWYG</strong> such as <strong>ckeditor</strong>'
+    $(ifrBody).on('keyup mouseup', function() {
+      resizeBox($(ifrBody).caret('offset'));
+    });
+
+
   });
   </script>
 
@@ -169,10 +192,16 @@
                           Type something here for fun!!
 
       </textarea>
+
       <h2>ContentEditable</h2>
       <div id="editable" class="inputor" contentEditable="true">
 Hello, some <b>bold</b> and <i>italic</i> and <b><i>bold</i></b> text
       </div>
+
+      <h2>iframe body</h2>
+      <iframe id="iframe1" src="" class="inputor">
+      </iframe>
+
       <div class="coordinate-box"></div>
       <div class="cursor"></div>
       <footer>

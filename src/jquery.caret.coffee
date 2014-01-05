@@ -39,8 +39,8 @@
     getPosition: -> $.noop()
 
     getOldIEPos: ->
-      textRange = document.selection.createRange()
-      preCaretTextRange = document.body.createTextRange()
+      textRange = oDocument.selection.createRange()
+      preCaretTextRange = oDocument.body.createTextRange()
       preCaretTextRange.moveToElementText(@domInputor)
       preCaretTextRange.setEndPoint("EndToEnd", textRange)
       preCaretTextRange.text.length
@@ -53,17 +53,17 @@
         pos = clonedRange.toString().length
         clonedRange.detach()
         pos
-      else if document.selection #IE < 9
+      else if oDocument.selection #IE < 9
         this.getOldIEPos()
 
     getOldIEOffset: ->
-      range = document.selection.createRange().duplicate()
+      range = oDocument.selection.createRange().duplicate()
       range.moveStart "character", -1
       rect = range.getBoundingClientRect()
       { height: rect.bottom - rect.top, left: rect.left, top: rect.top }
 
     getOffset: (pos) ->
-      if window.getSelection and range = this.range()
+      if oWindow.getSelection and range = this.range()
         return null if range.endOffset - 1 < 0
         clonedRange = range.cloneRange()
         # NOTE: have to select a char to get the rect.
@@ -72,18 +72,18 @@
         rect = clonedRange.getBoundingClientRect()
         offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
         clonedRange.detach()
-      else if document.selection # ie < 9
+      else if oDocument.selection # ie < 9
         offset = this.getOldIEOffset()
 
-      if offset
-        offset.top += $(window).scrollTop()
-        offset.left += $(window).scrollLeft()
+      if offset and !oFrame
+        offset.top += $(oWindow).scrollTop()
+        offset.left += $(oWindow).scrollLeft()
 
       offset
 
     range: ->
-      return unless window.getSelection
-      sel = window.getSelection()
+      return unless oWindow.getSelection
+      sel = oWindow.getSelection()
       if sel.rangeCount > 0 then sel.getRangeAt(0) else null
 
 
@@ -95,7 +95,7 @@
     getIEPos: ->
       # https://github.com/ichord/Caret.js/wiki/Get-pos-of-caret-in-IE
       inputor = @domInputor
-      range = document.selection.createRange()
+      range = oDocument.selection.createRange()
       pos = 0
       # selection should in the inputor.
       if range and range.parentElement() is inputor
@@ -112,11 +112,11 @@
       pos
 
     getPos: ->
-      if document.selection then this.getIEPos() else @domInputor.selectionStart
+      if oDocument.selection then this.getIEPos() else @domInputor.selectionStart
 
     setPos: (pos) ->
       inputor = @domInputor
-      if document.selection #IE
+      if oDocument.selection #IE
         range = inputor.createTextRange()
         range.move "character", pos
         range.select()
@@ -137,10 +137,10 @@
 
     getOffset: (pos) ->
       $inputor = @$inputor
-      if document.selection
+      if oDocument.selection
         offset = this.getIEOffset(pos)
-        offset.top += $(window).scrollTop() + $inputor.scrollTop()
-        offset.left += $(window).scrollLeft() + $inputor.scrollLeft()
+        offset.top += $(oWindow).scrollTop() + $inputor.scrollTop()
+        offset.left += $(oWindow).scrollLeft() + $inputor.scrollLeft()
         offset
       else
         offset = $inputor.offset()
@@ -221,12 +221,6 @@
       rect
 
   Utils =
-    adjustOffset: (offset, $inputor) ->
-      return unless offset
-      offset.top += $(window).scrollTop()
-      offset.left += $(window).scrollLeft()
-      offset
-
     contentEditable: ($inputor)->
       !!($inputor[0].contentEditable && $inputor[0].contentEditable == 'true')
 
@@ -235,11 +229,24 @@
       if pos then this.setPos pos else this.getPos()
 
     position: (pos) ->
-      if document.selection then this.getIEPosition pos else this.getPosition pos
+      if oDocument.selection then this.getIEPosition pos else this.getPosition pos
 
-    offset: (pos) -> this.getOffset(pos)
+    offset: (pos) ->
+      offset = this.getOffset(pos)
+      if oFrame
+        iOffset = $(oFrame).offset()
+        offset.top += iOffset.top
+        offset.left += iOffset.left
+      offset
 
+  oDocument = null
+  oWindow = null
+  oFrame = null
   $.fn.caret = (method) ->
+    # http://stackoverflow.com/questions/16010204/get-reference-of-window-object-from-a-dom-element
+    oDocument = this[0].ownerDocument
+    oWindow = oDocument.defaultView || oDocument.parentWindow
+    oFrame = oWindow.frameElement
     caret = if Utils.contentEditable(this) then new EditableCaret(this) else new InputCaret(this)
     if methods[method]
       methods[method].apply caret, Array::slice.call(arguments, 1)
