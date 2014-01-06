@@ -1,3 +1,7 @@
+### v0.0.6
+
+* 287b5d8 working in iframe
+
 ### v0.0.5
 
 * aef0aa4 fix IE input position error
