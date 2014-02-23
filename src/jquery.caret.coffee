@@ -226,7 +226,10 @@
 
   methods =
     pos: (pos) ->
-      if pos then this.setPos pos else this.getPos()
+      if pos and pos != 0
+        this.setPos pos 
+      else 
+        this.getPos()
 
     position: (pos) ->
       if oDocument.selection then this.getIEPosition pos else this.getPosition pos
