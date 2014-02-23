@@ -226,7 +226,7 @@
 
   methods =
     pos: (pos) ->
-      if pos and pos != 0
+      if pos or pos == 0
         this.setPos pos 
       else 
         this.getPos()

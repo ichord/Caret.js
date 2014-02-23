@@ -290,7 +290,7 @@
     };
     methods = {
       pos: function(pos) {
-        if (pos && pos !== 0) {
+        if (pos || pos === 0) {
           return this.setPos(pos);
         } else {
           return this.getPos();
