@@ -249,7 +249,10 @@
     # http://stackoverflow.com/questions/16010204/get-reference-of-window-object-from-a-dom-element
     oDocument = this[0].ownerDocument
     oWindow = oDocument.defaultView || oDocument.parentWindow
-    oFrame = oWindow.frameElement
+    try
+      oFrame = oWindow.frameElement
+    catch error
+      # throws error in cross-domain iframes
     caret = if Utils.contentEditable(this) then new EditableCaret(this) else new InputCaret(this)
     if methods[method]
       methods[method].apply caret, Array::slice.call(arguments, 1)
