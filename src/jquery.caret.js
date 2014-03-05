@@ -318,10 +318,14 @@
     oWindow = null;
     oFrame = null;
     $.fn.caret = function(method) {
-      var caret;
+      var caret, error;
       oDocument = this[0].ownerDocument;
       oWindow = oDocument.defaultView || oDocument.parentWindow;
-      oFrame = oWindow.frameElement;
+      try {
+        oFrame = oWindow.frameElement;
+      } catch (_error) {
+        error = _error;
+      }
       caret = Utils.contentEditable(this) ? new EditableCaret(this) : new InputCaret(this);
       if (methods[method]) {
         return methods[method].apply(caret, Array.prototype.slice.call(arguments, 1));
