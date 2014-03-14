@@ -27,8 +27,23 @@ module.exports = (grunt) ->
         files:
           'src/<%= pkg.name %>.js': 'src/<%= pkg.name %>.coffee'
 
+    'json-replace':
+      options:
+        space: "  ",
+        replace:
+          version: "<%= pkg.version %>"
+      'update-version':
+        files:[{
+          'bower.json': 'bower.json',
+          'component.json': 'component.json'
+        }]
+
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-jasmine'
+  grunt.loadNpmTasks 'grunt-json-replace'
 
-  grunt.registerTask 'default', ['coffee', 'jasmine', 'uglify']
+  grunt.registerTask 'update-version', 'json-replace'
+
+  grunt.registerTask 'default', ['coffee', 'jasmine','update-version', 'uglify']
+  grunt.registerTask 'test', ['coffee', 'jasmine']

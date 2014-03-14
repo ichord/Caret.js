@@ -1,3 +1,11 @@
+### v0.0.7
+
+* cf94271 - Added suport for .caret(pos, 0) - Nicolas Donna
+* 2de2b0f - Fixed error when checking the pos arg when setting the position - Nicolas Donna
+* 34ac7fa - catch error thrown in cross-domain iframe - jiyinyiyong
+
+* 01f1fa1 - add minified file in dist.
+
 ### v0.0.6
 
 * 287b5d8 working in iframe
