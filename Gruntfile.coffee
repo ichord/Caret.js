@@ -18,7 +18,7 @@ module.exports = (grunt) ->
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       build:
         files:
-          'build/<%= pkg.name %>.min.js': ['src/<%= pkg.name %>.js']
+          'dist/<%= pkg.name %>.min.js': ['src/<%= pkg.name %>.js']
 
     coffee:
       compileWithMaps:
