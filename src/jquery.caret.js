@@ -24,7 +24,7 @@
     }
   })(function($) {
     "use strict";
-    var EditableCaret, InputCaret, Mirror, Utils, methods, oDocument, oFrame, oWindow, pluginName;
+    var EditableCaret, InputCaret, Mirror, Utils, iframe, methods, oDocument, oFrame, oWindow, pluginName;
     pluginName = 'caret';
     EditableCaret = (function() {
       function EditableCaret($inputor) {
@@ -317,20 +317,29 @@
     oDocument = null;
     oWindow = null;
     oFrame = null;
+    iframe = null;
     $.fn.caret = function(method) {
-      var caret, error;
-      oDocument = this[0].ownerDocument;
-      oWindow = oDocument.defaultView || oDocument.parentWindow;
-      try {
-        oFrame = oWindow.frameElement;
-      } catch (_error) {
-        error = _error;
-      }
-      caret = Utils.contentEditable(this) ? new EditableCaret(this) : new InputCaret(this);
-      if (methods[method]) {
-        return methods[method].apply(caret, Array.prototype.slice.call(arguments, 1));
+      var caret, error, _ref;
+      iframe = (_ref = method.iframe) != null ? _ref : null;
+      if (iframe) {
+        oWindow = iframe.contentWindow;
+        oDocument = iframe.contentDocument || oWindow.document;
+        oFrame = iframe;
+        return this;
       } else {
-        return $.error("Method " + method + " does not exist on jQuery.caret");
+        oDocument = this[0].ownerDocument;
+        oWindow = oDocument.defaultView || oDocument.parentWindow;
+        try {
+          oFrame = oWindow.frameElement;
+        } catch (_error) {
+          error = _error;
+        }
+        if (methods[method]) {
+          caret = Utils.contentEditable(this) ? new EditableCaret(this) : new InputCaret(this);
+          return methods[method].apply(caret, Array.prototype.slice.call(arguments, 1));
+        } else {
+          return $.error("Method " + method + " does not exist on jQuery.caret");
+        }
       }
     };
     $.fn.caret.EditableCaret = EditableCaret;
