@@ -245,27 +245,36 @@
   oDocument = null
   oWindow = null
   oFrame = null
-  iframe = null
-  $.fn.caret = (method) ->
-    # http://stackoverflow.com/questions/16010204/get-reference-of-window-object-from-a-dom-element
-    iframe = method.iframe ? null
-    if iframe
-      oWindow = iframe.contentWindow
-      oDocument = iframe.contentDocument || oWindow.document
-      oFrame = iframe
-      this
+  setContextBy = (iframe) ->
+    oFrame = iframe
+    oWindow = iframe.contentWindow
+    oDocument = iframe.contentDocument || oWindow.document
+  configure = ($dom, settings) ->
+    if $.isPlainObject(settings) and iframe = settings.iframe
+      $dom.data('caret-iframe', iframe) 
+      setContextBy iframe
+    else if iframe = $dom.data('caret-iframe') 
+      setContextBy iframe
     else
-      oDocument = this[0].ownerDocument
+      oDocument = $dom[0].ownerDocument
       oWindow = oDocument.defaultView || oDocument.parentWindow
       try
         oFrame = oWindow.frameElement
       catch error
         # throws error in cross-domain iframes
-      if methods[method]
-        caret = if Utils.contentEditable(this) then new EditableCaret(this) else new InputCaret(this)
-        methods[method].apply caret, Array::slice.call(arguments, 1)
-      else
-        $.error "Method #{method} does not exist on jQuery.caret"
+  $.fn.caret = (method) ->
+    # http://stackoverflow.com/questions/16010204/get-reference-of-window-object-from-a-dom-element
+    if typeof method is 'object'
+      configure this, method
+      this
+    else if methods[method]
+      configure this
+      caret = if Utils.contentEditable(this) then new EditableCaret(this) else new InputCaret(this)
+      methods[method].apply caret, Array::slice.call(arguments, 1)
+    else
+      $.error "Method #{method} does not exist on jQuery.caret"
+
+
 
   $.fn.caret.EditableCaret = EditableCaret
   $.fn.caret.InputCaret = InputCaret
