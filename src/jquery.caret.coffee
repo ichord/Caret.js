@@ -182,11 +182,38 @@
   #   mirror.create(html).rect()
   class Mirror
     css_attr: [
-      "overflowY", "height", "paddingTop", "paddingLeft",
-      "paddingRight", "paddingBottom", "marginTop", "marginLeft",
-      "marginRight", "marginBottom","fontFamily", "borderStyle",
-      "borderWidth","wordWrap", "fontSize", "lineHeight", "overflowX",
-      "text-align",
+      "borderBottomWidth",
+      "borderLeftWidth",
+      "borderRightWidth",
+      "borderTopStyle",
+      "borderRightStyle",
+      "borderBottomStyle",
+      "borderLeftStyle",
+      "borderTopWidth",
+      "boxSizing",
+      "fontFamily",
+      "fontSize",
+      "fontWeight",
+      "height",
+      "letterSpacing",
+      "lineHeight",
+      "marginBottom",
+      "marginLeft",
+      "marginRight",
+      "marginTop",
+      "outlineWidth",
+      "overflow",
+      "overflowX",
+      "overflowY",
+      "paddingBottom",
+      "paddingLeft",
+      "paddingRight",
+      "paddingTop",
+      "textAlign",
+      "textOverflow",
+      "whiteSpace",
+      "wordBreak",
+      "wordWrap",
     ]
 
     constructor: (@$inputor) ->
@@ -195,9 +222,8 @@
       css =
         position: 'absolute'
         left: -9999
-        top:0
+        top: 0
         zIndex: -20000
-        'white-space': 'pre-wrap'
       if @$inputor.prop( 'tagName' ) == 'TEXTAREA'
         @css_attr.push( 'width' )
       $.each @css_attr, (i,p) =>
