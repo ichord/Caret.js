@@ -182,7 +182,7 @@
   #   mirror.create(html).rect()
   class Mirror
     css_attr: [
-      "overflowY", "height", "width", "paddingTop", "paddingLeft",
+      "overflowY", "height", "paddingTop", "paddingLeft",
       "paddingRight", "paddingBottom", "marginTop", "marginLeft",
       "marginRight", "marginBottom","fontFamily", "borderStyle",
       "borderWidth","wordWrap", "fontSize", "lineHeight", "overflowX",
@@ -198,6 +198,8 @@
         top:0
         zIndex: -20000
         'white-space': 'pre-wrap'
+      if @$inputor.prop( 'tagName' ) == 'TEXTAREA'
+        @css_attr.push( 'width' )
       $.each @css_attr, (i,p) =>
         css[p] = @$inputor.css p
       css
@@ -227,8 +229,8 @@
   methods =
     pos: (pos) ->
       if pos or pos == 0
-        this.setPos pos 
-      else 
+        this.setPos pos
+      else
         this.getPos()
 
     position: (pos) ->
@@ -251,9 +253,9 @@
     oDocument = iframe.contentDocument || oWindow.document
   configure = ($dom, settings) ->
     if $.isPlainObject(settings) and iframe = settings.iframe
-      $dom.data('caret-iframe', iframe) 
+      $dom.data('caret-iframe', iframe)
       setContextBy iframe
-    else if iframe = $dom.data('caret-iframe') 
+    else if iframe = $dom.data('caret-iframe')
       setContextBy iframe
     else
       oDocument = $dom[0].ownerDocument
