@@ -237,7 +237,7 @@
 
     })();
     Mirror = (function() {
-      Mirror.prototype.css_attr = ["overflowY", "height", "width", "paddingTop", "paddingLeft", "paddingRight", "paddingBottom", "marginTop", "marginLeft", "marginRight", "marginBottom", "fontFamily", "borderStyle", "borderWidth", "wordWrap", "fontSize", "lineHeight", "overflowX", "text-align"];
+      Mirror.prototype.css_attr = ["overflowY", "height", "paddingTop", "paddingLeft", "paddingRight", "paddingBottom", "marginTop", "marginLeft", "marginRight", "marginBottom", "fontFamily", "borderStyle", "borderWidth", "wordWrap", "fontSize", "lineHeight", "overflowX", "text-align"];
 
       function Mirror($inputor) {
         this.$inputor = $inputor;
@@ -253,6 +253,9 @@
           zIndex: -20000,
           'white-space': 'pre-wrap'
         };
+        if (this.$inputor.prop('tagName') === 'TEXTAREA') {
+          this.css_attr.push('width');
+        }
         $.each(this.css_attr, function(i, p) {
           return css[p] = _this.$inputor.css(p);
         });
