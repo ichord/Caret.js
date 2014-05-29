@@ -237,7 +237,7 @@
 
     })();
     Mirror = (function() {
-      Mirror.prototype.css_attr = ["overflowY", "height", "paddingTop", "paddingLeft", "paddingRight", "paddingBottom", "marginTop", "marginLeft", "marginRight", "marginBottom", "fontFamily", "borderStyle", "borderWidth", "wordWrap", "fontSize", "lineHeight", "overflowX", "text-align"];
+      Mirror.prototype.css_attr = ["borderBottomWidth", "borderLeftWidth", "borderRightWidth", "borderTopStyle", "borderRightStyle", "borderBottomStyle", "borderLeftStyle", "borderTopWidth", "boxSizing", "fontFamily", "fontSize", "fontWeight", "height", "letterSpacing", "lineHeight", "marginBottom", "marginLeft", "marginRight", "marginTop", "outlineWidth", "overflow", "overflowX", "overflowY", "paddingBottom", "paddingLeft", "paddingRight", "paddingTop", "textAlign", "textOverflow", "whiteSpace", "wordBreak", "wordWrap"];
 
       function Mirror($inputor) {
         this.$inputor = $inputor;
@@ -250,8 +250,7 @@
           position: 'absolute',
           left: -9999,
           top: 0,
-          zIndex: -20000,
-          'white-space': 'pre-wrap'
+          zIndex: -20000
         };
         if (this.$inputor.prop('tagName') === 'TEXTAREA') {
           this.css_attr.push('width');
