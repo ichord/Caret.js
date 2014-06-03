@@ -22,8 +22,6 @@ module.exports = (grunt) ->
 
     coffee:
       compileWithMaps:
-        options:
-          sourceMap: true
         files:
           'src/<%= pkg.name %>.js': 'src/<%= pkg.name %>.coffee'
 
