@@ -211,6 +211,7 @@
       "paddingTop",
       "textAlign",
       "textOverflow",
+      "textTransform",
       "whiteSpace",
       "wordBreak",
       "wordWrap",
