@@ -161,8 +161,10 @@
 
       pos = this.getPos() if pos is undefined
       start_range = $inputor.val().slice(0, pos)
-      html = "<span>"+format(start_range)+"</span>"
-      html += "<span id='caret'>|</span>"
+      end_range = $inputor.val().slice(pos)
+      html = "<span style='position: relative; display: inline;'>"+format(start_range)+"</span>"
+      html += "<span id='caret' style='position: relative; display: inline;'>|</span>"
+      html += "<span style='position: relative; display: inline;'>"+format(end_range)+"</span>"
 
       mirror = new Mirror($inputor)
       at_rect = mirror.create(html).rect()
@@ -274,32 +276,33 @@
   oDocument = null
   oWindow = null
   oFrame = null
-  setContextBy = (iframe) ->
-    oFrame = iframe
-    oWindow = iframe.contentWindow
-    oDocument = iframe.contentDocument || oWindow.document
-  configure = ($dom, settings) ->
-    if $.isPlainObject(settings) and iframe = settings.iframe
-      $dom.data('caret-iframe', iframe)
-      setContextBy iframe
-    else if iframe = $dom.data('caret-iframe')
-      setContextBy iframe
+  setContextBy = (settings) ->
+    if iframe = settings?.iframe
+      oFrame = iframe
+      oWindow = iframe.contentWindow
+      oDocument = iframe.contentDocument || oWindow.document
     else
-      oDocument = $dom[0].ownerDocument
-      oWindow = oDocument.defaultView || oDocument.parentWindow
-      try
-        oFrame = oWindow.frameElement
-      catch error
-        # throws error in cross-domain iframes
-  $.fn.caret = (method) ->
+      oFrame = undefined
+      oWindow = window
+      oDocument = document
+  discoveryIframeOf = ($dom) ->
+    oDocument = $dom[0].ownerDocument
+    oWindow = oDocument.defaultView || oDocument.parentWindow
+    try
+      oFrame = oWindow.frameElement
+    catch error
+      # throws error in cross-domain iframes
+
+  $.fn.caret = (method, value, settings) ->
     # http://stackoverflow.com/questions/16010204/get-reference-of-window-object-from-a-dom-element
-    if typeof method is 'object'
-      configure this, method
-      this
-    else if methods[method]
-      configure this
+    if methods[method]
+      if $.isPlainObject(value)
+        setContextBy value
+        value = undefined
+      else
+        setContextBy settings
       caret = if Utils.contentEditable(this) then new EditableCaret(this) else new InputCaret(this)
-      methods[method].apply caret, Array::slice.call(arguments, 1)
+      methods[method].apply caret, [value]
     else
       $.error "Method #{method} does not exist on jQuery.caret"
 

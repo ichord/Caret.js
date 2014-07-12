@@ -24,7 +24,7 @@
     }
   })(function($) {
     "use strict";
-    var EditableCaret, InputCaret, Mirror, Utils, configure, methods, oDocument, oFrame, oWindow, pluginName, setContextBy;
+    var EditableCaret, InputCaret, Mirror, Utils, discoveryIframeOf, methods, oDocument, oFrame, oWindow, pluginName, setContextBy;
     pluginName = 'caret';
     EditableCaret = (function() {
       function EditableCaret($inputor) {
@@ -204,7 +204,7 @@
       };
 
       InputCaret.prototype.getPosition = function(pos) {
-        var $inputor, at_rect, format, html, mirror, start_range;
+        var $inputor, at_rect, end_range, format, html, mirror, start_range;
         $inputor = this.$inputor;
         format = function(value) {
           return value.replace(/</g, '&lt').replace(/>/g, '&gt').replace(/`/g, '&#96').replace(/"/g, '&quot').replace(/\r\n|\r|\n/g, "<br />");
@@ -213,8 +213,10 @@
           pos = this.getPos();
         }
         start_range = $inputor.val().slice(0, pos);
-        html = "<span>" + format(start_range) + "</span>";
-        html += "<span id='caret'>|</span>";
+        end_range = $inputor.val().slice(pos);
+        html = "<span style='position: relative; display: inline;'>" + format(start_range) + "</span>";
+        html += "<span id='caret' style='position: relative; display: inline;'>|</span>";
+        html += "<span style='position: relative; display: inline;'>" + format(end_range) + "</span>";
         mirror = new Mirror($inputor);
         return at_rect = mirror.create(html).rect();
       };
@@ -319,37 +321,39 @@
     oDocument = null;
     oWindow = null;
     oFrame = null;
-    setContextBy = function(iframe) {
-      oFrame = iframe;
-      oWindow = iframe.contentWindow;
-      return oDocument = iframe.contentDocument || oWindow.document;
-    };
-    configure = function($dom, settings) {
-      var error, iframe;
-      if ($.isPlainObject(settings) && (iframe = settings.iframe)) {
-        $dom.data('caret-iframe', iframe);
-        return setContextBy(iframe);
-      } else if (iframe = $dom.data('caret-iframe')) {
-        return setContextBy(iframe);
+    setContextBy = function(settings) {
+      var iframe;
+      if (iframe = settings != null ? settings.iframe : void 0) {
+        oFrame = iframe;
+        oWindow = iframe.contentWindow;
+        return oDocument = iframe.contentDocument || oWindow.document;
       } else {
-        oDocument = $dom[0].ownerDocument;
-        oWindow = oDocument.defaultView || oDocument.parentWindow;
-        try {
-          return oFrame = oWindow.frameElement;
-        } catch (_error) {
-          error = _error;
-        }
+        oFrame = void 0;
+        oWindow = window;
+        return oDocument = document;
       }
     };
-    $.fn.caret = function(method) {
+    discoveryIframeOf = function($dom) {
+      var error;
+      oDocument = $dom[0].ownerDocument;
+      oWindow = oDocument.defaultView || oDocument.parentWindow;
+      try {
+        return oFrame = oWindow.frameElement;
+      } catch (_error) {
+        error = _error;
+      }
+    };
+    $.fn.caret = function(method, value, settings) {
       var caret;
-      if (typeof method === 'object') {
-        configure(this, method);
-        return this;
-      } else if (methods[method]) {
-        configure(this);
+      if (methods[method]) {
+        if ($.isPlainObject(value)) {
+          setContextBy(value);
+          value = void 0;
+        } else {
+          setContextBy(settings);
+        }
         caret = Utils.contentEditable(this) ? new EditableCaret(this) : new InputCaret(this);
-        return methods[method].apply(caret, Array.prototype.slice.call(arguments, 1));
+        return methods[method].apply(caret, [value]);
       } else {
         return $.error("Method " + method + " does not exist on jQuery.caret");
       }
