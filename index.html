@@ -65,9 +65,8 @@
     ifrBody.contentEditable = true;
     ifrBody.id = 'ifrBody';
     ifrBody.innerHTML = 'For <strong>WYSIWYG</strong> such as <strong>ckeditor</strong>'
-    $(ifrBody).caret({iframe: ifr});
     $(ifrBody).on('keyup mouseup', function() {
-      resizeBox($(ifrBody).caret('offset'));
+      resizeBox($(ifrBody).caret('offset', {iframe: ifr}));
     });
 
 
