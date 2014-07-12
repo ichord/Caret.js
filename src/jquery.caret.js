@@ -204,7 +204,7 @@
       };
 
       InputCaret.prototype.getPosition = function(pos) {
-        var $inputor, at_rect, format, html, mirror, start_range;
+        var $inputor, at_rect, end_range, format, html, mirror, start_range;
         $inputor = this.$inputor;
         format = function(value) {
           return value.replace(/</g, '&lt').replace(/>/g, '&gt').replace(/`/g, '&#96').replace(/"/g, '&quot').replace(/\r\n|\r|\n/g, "<br />");
@@ -213,8 +213,10 @@
           pos = this.getPos();
         }
         start_range = $inputor.val().slice(0, pos);
+        end_range = $inputor.val().slice(pos);
         html = "<span>" + format(start_range) + "</span>";
         html += "<span id='caret'>|</span>";
+        html += "<span>" + format(end_range) + "</span>";
         mirror = new Mirror($inputor);
         return at_rect = mirror.create(html).rect();
       };

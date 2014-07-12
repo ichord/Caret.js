@@ -161,8 +161,10 @@
 
       pos = this.getPos() if pos is undefined
       start_range = $inputor.val().slice(0, pos)
+      end_range = $inputor.val().slice(pos)
       html = "<span>"+format(start_range)+"</span>"
       html += "<span id='caret'>|</span>"
+      html += "<span>"+format(end_range)+"</span>"
 
       mirror = new Mirror($inputor)
       at_rect = mirror.create(html).rect()
