@@ -214,7 +214,7 @@
         var $inputor, at_rect, end_range, format, html, mirror, start_range;
         $inputor = this.$inputor;
         format = function(value) {
-          return value.replace(/</g, '&lt').replace(/>/g, '&gt').replace(/`/g, '&#96').replace(/"/g, '&quot').replace(/\r\n|\r|\n/g, "<br />");
+          return $('<div></div>').text(value).html();
         };
         if (pos === void 0) {
           pos = this.getPos();
