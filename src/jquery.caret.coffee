@@ -35,8 +35,14 @@
 
     # NOTE: Duck type
     setPos: (pos) -> @domInputor
-    getIEPosition: -> $.noop()
-    getPosition: -> $.noop()
+    getIEPosition: -> this.getPosition()
+    getPosition: ->
+      offset = this.getOffset()
+      if !oFrame
+        inputor_offset = @$inputor.offset()
+        offset.left -= inputor_offset.left
+        offset.top -= inputor_offset.top
+      offset
 
     getOldIEPos: ->
       textRange = oDocument.selection.createRange()
