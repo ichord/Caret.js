@@ -21,7 +21,6 @@ Usage
 ```javascript
 
 // Get caret position
-// not working in `contentEditable` mode
 $('#inputor').caret('position'); // => {left: 15, top: 30, height: 20}
 $('#inputor').caret('iframe', iframe1).caret('position')
 
@@ -47,7 +46,6 @@ $('#inputor').caret('pos'); // => 15
 $('#inputor').caret('pos', 15);
 
 // set iframe context
-<!-- $('#inputor').caret({iframe: theIframe}); -->
 $('#inputor').caret('offset', {iframe: theIframe});
 $('#inputor').caret('pos', 15, {iframe: theIframe});
 

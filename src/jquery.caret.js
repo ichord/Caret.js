@@ -37,11 +37,18 @@
       };
 
       EditableCaret.prototype.getIEPosition = function() {
-        return $.noop();
+        return this.getPosition();
       };
 
       EditableCaret.prototype.getPosition = function() {
-        return $.noop();
+        var inputor_offset, offset;
+        offset = this.getOffset();
+        if (!oFrame) {
+          inputor_offset = this.$inputor.offset();
+          offset.left -= inputor_offset.left;
+          offset.top -= inputor_offset.top;
+        }
+        return offset;
       };
 
       EditableCaret.prototype.getOldIEPos = function() {

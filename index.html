@@ -14,39 +14,37 @@
 
   <script type="text/javascript">
   $(function () {
-    $input = $('#input');
-    $editable = $('#editable')
-    $corbox = $('.coordinate-box');
-    $cursor = $('.cursor');
+    var $input = $('#input');
+    var $editable = $('#editable');
 
-    function inputOffset() {
-      var offset = $input.caret('offset');
-      if(offset)
-        resizeBox(offset);
-      return offset
-    }
-    function editableOffset() {
-      var offset = $editable.caret('offset');
-      if (offset)
-        resizeBox(offset);
+    function resetOffset($textField) {
+      var offset = $textField.caret('offset');
+      resizeBox(offset);
+      var position = $textField.caret('position');
+      $('.position-box').css({'width': position.left, 'height': position.top})
+      $('.position-indicator')
+        .html("Position: left: " + position.left + ", " + "top: " + position.top + "&nbsp;");
       return offset
     }
     function resizeBox (offset) {
-      $corbox.css({'width': offset.left, 'height': offset.top})
-      $cursor.offset({left: offset.left, top: offset.top + offset.height + 2})
-        .html("&nbsp; left: " + offset.left + ", " + "top: " + offset.top + "&nbsp;" + "height: " + offset.height);
+      $('.coordinate-box').css({'width': offset.left, 'height': offset.top})
+      $('.cursor')
+        .offset({left: offset.left, top: offset.top + offset.height + 2})
+        .find('.offset-indicator')
+        .html("Offset: left: " + offset.left + ", " + "top: " + offset.top + "&nbsp;" + "height: " + offset.height);
     }
+
     $input.on('focus keyup mouseup', function(){
-      inputOffset();
+      resetOffset($input);
     });
     $editable.on('focus keyup mouseup', function(){
-      editableOffset();
+      resetOffset($editable)
     });
     $(window).resize(function() {
       if ($input.is(":focus"))
-        inputOffset();
+        resetOffset($input);
       else
-        editableOffset();
+        resetOffset($editable);
     });
     $input.caret('pos', 53).focus();
 
@@ -171,11 +169,27 @@
     left: 0;
     z-index: 999;
   }
-  .cursor {
-    border: 2px solid gray;
+  .coordinate-box > .position-box {
+    border-right: 2px dashed rgb(6, 150, 247);
+    border-bottom: 2px dashed rgb(6, 150, 247);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 10000;
+  }
+  .cursor > .offset-indicator {
+    border: 1px solid gray;
     position: absolute;
     z-index: 999;
-    margin: 30px;
+    padding: 0 3px;
+    border-radius: 3px;
+  } 
+  .cursor > .position-indicator {
+    border: 1px solid rgb(6, 150, 247);
+    position: absolute;
+    bottom: -50px;
+    padding: 0 3px;
+    border-radius: 3px;
   }
 
   </style>
@@ -207,8 +221,13 @@ Hello, some <b>bold</b> and <i>italic</i> and <b><i>bold</i></b> text
       <iframe id="iframe1" src="" class="inputor">
       </iframe>
 
-      <div class="coordinate-box"></div>
-      <div class="cursor"></div>
+      <div class="coordinate-box">
+        <div class="position-box"></div>
+      </div>
+      <div class="cursor">
+        <div class="offset-indicator"></div>
+        <div class="position-indicator"></div>
+      </div>
       <footer>
         <h2>
           -> <a class="github" href="https://github.com/ichord/Caret.js">Fork me on GitHub!</a>
