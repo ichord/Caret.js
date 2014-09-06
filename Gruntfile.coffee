@@ -21,11 +21,16 @@ module.exports = (grunt) ->
           'dist/<%= pkg.name %>.min.js': ['src/<%= pkg.name %>.js']
 
     coffee:
-      compileWithMaps:
+      withMaps:
         options:
           sourceMap: true
         files:
           'src/<%= pkg.name %>.js': 'src/<%= pkg.name %>.coffee'
+      withoutMaps:
+        options:
+          sourceMap: false
+        files:
+          'dist/<%= pkg.name %>.js': 'src/<%= pkg.name %>.coffee'
 
     'json-replace':
       options:
