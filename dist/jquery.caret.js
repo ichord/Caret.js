@@ -42,11 +42,9 @@
       EditableCaret.prototype.getPosition = function() {
         var inputor_offset, offset;
         offset = this.getOffset();
-        if (!oFrame) {
-          inputor_offset = this.$inputor.offset();
-          offset.left -= inputor_offset.left;
-          offset.top -= inputor_offset.top;
-        }
+        inputor_offset = this.$inputor.offset();
+        offset.left -= inputor_offset.left;
+        offset.top -= inputor_offset.top;
         return offset;
       };
 
@@ -104,7 +102,7 @@
         } else if (oDocument.selection) {
           offset = this.getOldIEOffset();
         }
-        if (offset && !oFrame) {
+        if (offset) {
           offset.top += $(oWindow).scrollTop();
           offset.left += $(oWindow).scrollLeft();
         }
@@ -314,13 +312,8 @@
         }
       },
       offset: function(pos) {
-        var iOffset, offset;
+        var offset;
         offset = this.getOffset(pos);
-        if (oFrame) {
-          iOffset = $(oFrame).offset();
-          offset.top += iOffset.top;
-          offset.left += iOffset.left;
-        }
         return offset;
       }
     };

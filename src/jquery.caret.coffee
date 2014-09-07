@@ -38,10 +38,9 @@
     getIEPosition: -> this.getPosition()
     getPosition: ->
       offset = this.getOffset()
-      if !oFrame
-        inputor_offset = @$inputor.offset()
-        offset.left -= inputor_offset.left
-        offset.top -= inputor_offset.top
+      inputor_offset = @$inputor.offset()
+      offset.left -= inputor_offset.left
+      offset.top -= inputor_offset.top
       offset
 
     getOldIEPos: ->
@@ -81,7 +80,7 @@
       else if oDocument.selection # ie < 9
         offset = this.getOldIEOffset()
 
-      if offset and !oFrame
+      if offset
         offset.top += $(oWindow).scrollTop()
         offset.left += $(oWindow).scrollLeft()
 
@@ -268,10 +267,6 @@
 
     offset: (pos) ->
       offset = this.getOffset(pos)
-      if oFrame
-        iOffset = $(oFrame).offset()
-        offset.top += iOffset.top
-        offset.left += iOffset.left
       offset
 
   oDocument = null
