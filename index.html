@@ -19,19 +19,19 @@
 
     function resetOffset($textField) {
       var offset = $textField.caret('offset');
-      resizeBox(offset);
       var position = $textField.caret('position');
-      $('.position-box').css({'width': position.left, 'height': position.top})
-      $('.position-indicator')
-        .html("Position: left: " + position.left + ", " + "top: " + position.top + "&nbsp;");
+      resizeBox(offset, position);
       return offset
     }
-    function resizeBox (offset) {
+    function resizeBox (offset, position) {
       $('.coordinate-box').css({'width': offset.left, 'height': offset.top})
       $('.cursor')
         .offset({left: offset.left, top: offset.top + offset.height + 2})
         .find('.offset-indicator')
         .html("Offset: left: " + offset.left + ", " + "top: " + offset.top + "&nbsp;" + "height: " + offset.height);
+      $('.position-box').css({'width': position.left, 'height': position.top})
+      $('.position-indicator')
+        .html("Position: left: " + position.left + ", " + "top: " + position.top + "&nbsp;");
     }
 
     $input.on('focus keyup mouseup', function(){
@@ -64,7 +64,11 @@
     ifrBody.id = 'ifrBody';
     ifrBody.innerHTML = 'For <strong>WYSIWYG</strong> such as <strong>ckeditor</strong>'
     $(ifrBody).on('keyup mouseup', function() {
-      resizeBox($(ifrBody).caret('offset', {iframe: ifr}));
+      offset = $(ifrBody).caret('offset', {iframe: ifr});
+      offset.left += $(ifr).offset().left;
+      offset.top += $(ifr).offset().top;
+      position = $(ifrBody).caret('position', {iframe: ifr});
+      resizeBox(offset, position);
     });
 
 
