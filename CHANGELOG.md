@@ -1,3 +1,9 @@
+### v0.2.0
+
+* 12119d2 - calculating in iframe's coordinate
+* 959436d - implement `position` api for contentEditable
+* d051ffc - fix html escaping while mirroring caret
+
 ### v0.1.0
 
 * b1f8f53 - fix Mirror div does not reset its CSS
