@@ -35,8 +35,13 @@
 
     # NOTE: Duck type
     setPos: (pos) -> @domInputor
-    getIEPosition: -> $.noop()
-    getPosition: -> $.noop()
+    getIEPosition: -> this.getPosition()
+    getPosition: ->
+      offset = this.getOffset()
+      inputor_offset = @$inputor.offset()
+      offset.left -= inputor_offset.left
+      offset.top -= inputor_offset.top
+      offset
 
     getOldIEPos: ->
       textRange = oDocument.selection.createRange()
@@ -75,7 +80,7 @@
       else if oDocument.selection # ie < 9
         offset = this.getOldIEOffset()
 
-      if offset and !oFrame
+      if offset
         offset.top += $(oWindow).scrollTop()
         offset.left += $(oWindow).scrollLeft()
 
@@ -152,12 +157,7 @@
 
     getPosition: (pos)->
       $inputor = @$inputor
-      format = (value) ->
-        value.replace(/</g, '&lt')
-        .replace(/>/g, '&gt')
-        .replace(/`/g,'&#96')
-        .replace(/"/g,'&quot')
-        .replace(/\r\n|\r|\n/g,"<br />")
+      format = (value) -> $('<div></div>').text(value).html()
 
       pos = this.getPos() if pos is undefined
       start_range = $inputor.val().slice(0, pos)
@@ -267,10 +267,6 @@
 
     offset: (pos) ->
       offset = this.getOffset(pos)
-      if oFrame
-        iOffset = $(oFrame).offset()
-        offset.top += iOffset.top
-        offset.left += iOffset.left
       offset
 
   oDocument = null

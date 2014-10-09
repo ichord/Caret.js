@@ -1,6 +1,6 @@
 {
   "name": "Caret.js",
-  "version": "0.1.0+2",
+  "version": "0.2.0",
   "main": "src/jquery.caret.js",
   "ignore": [
     "**/.*",
