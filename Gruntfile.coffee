@@ -32,6 +32,11 @@ module.exports = (grunt) ->
         files:
           'dist/<%= pkg.name %>.js': 'src/<%= pkg.name %>.coffee'
 
+    watch:
+      scripts:
+        files: ['src/*.coffee']
+        tasks: ['coffee']
+
     'json-replace':
       options:
         space: "  ",
@@ -47,8 +52,9 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-jasmine'
   grunt.loadNpmTasks 'grunt-json-replace'
+  grunt.loadNpmTasks 'grunt-contrib-watch'
 
   grunt.registerTask 'update-version', 'json-replace'
 
-  grunt.registerTask 'default', ['coffee', 'jasmine','update-version', 'uglify']
+  grunt.registerTask 'default', ['coffee', 'jasmine','update-version', 'uglify', 'watch']
   grunt.registerTask 'test', ['coffee', 'jasmine']

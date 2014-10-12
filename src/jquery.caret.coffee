@@ -157,8 +157,10 @@
 
     getPosition: (pos)->
       $inputor = @$inputor
-      format = (value) -> $('<div></div>').text(value).html()
-
+      format = (value) ->
+        $('<div></div>').text(value).html()
+          .replace(/\r\n|\r|\n/g,"<br/>")
+          .replace(/\s/g, "&nbsp;")
       pos = this.getPos() if pos is undefined
       start_range = $inputor.val().slice(0, pos)
       end_range = $inputor.val().slice(pos)
