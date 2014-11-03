@@ -69,14 +69,26 @@
 
     getOffset: (pos) ->
       if oWindow.getSelection and range = this.range()
-        return null if range.endOffset - 1 < 0
-        clonedRange = range.cloneRange()
-        # NOTE: have to select a char to get the rect.
-        clonedRange.setStart(range.endContainer, range.endOffset - 1)
-        clonedRange.setEnd(range.endContainer, range.endOffset)
-        rect = clonedRange.getBoundingClientRect()
-        offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
-        clonedRange.detach()
+        # endContainer would be the inputor in Firefox at the begnning of a line
+        if range.endOffset - 1 > 0 and range.endContainer is not @domInputor
+          clonedRange = range.cloneRange()
+          clonedRange.setStart(range.endContainer, range.endOffset - 1)
+          clonedRange.setEnd(range.endContainer, range.endOffset)
+          rect = clonedRange.getBoundingClientRect()
+          offset = { height: rect.height, left: rect.left + rect.width, top: rect.top }
+          clonedRange.detach()
+        # At the begnning of the inputor, the offset height is 0 in Chrome and Safari
+        # This work fine in all browers but except while the inputor break a line into two (wrapped line).
+        # so we can't use it in all cases.
+        if !offset or offset?.height == 0
+          clonedRange = range.cloneRange()
+          shadowCaret = $ document.createTextNode "|"
+          clonedRange.insertNode shadowCaret[0]
+          clonedRange.selectNode shadowCaret[0]
+          rect = clonedRange.getBoundingClientRect()
+          offset = {height: rect.height, left: rect.left, top: rect.top }
+          shadowCaret.remove()
+          clonedRange.detach()
       else if oDocument.selection # ie < 9
         offset = this.getOldIEOffset()
 
