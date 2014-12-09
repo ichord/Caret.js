@@ -82,7 +82,7 @@
         # so we can't use it in all cases.
         if !offset or offset?.height == 0
           clonedRange = range.cloneRange()
-          shadowCaret = $ document.createTextNode "|"
+          shadowCaret = $ oDocument.createTextNode "|"
           clonedRange.insertNode shadowCaret[0]
           clonedRange.selectNode shadowCaret[0]
           rect = clonedRange.getBoundingClientRect()
