@@ -1,3 +1,8 @@
+### v0.2.1
+
+* f66a1eb - can get offset at the benginning of a line
+* 4885ddd - fix wrong position of textarea
+
 ### v0.2.0
 
 * 12119d2 - calculating in iframe's coordinate
