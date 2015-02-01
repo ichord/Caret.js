@@ -156,9 +156,10 @@ class InputCaret
   getPosition: (pos)->
     $inputor = @$inputor
     format = (value) ->
-      $('<div></div>').text(value).html()
-        .replace(/\r\n|\r|\n/g,"<br/>")
-        .replace(/\s/g, "&nbsp;")
+      value = value.replace(/<|>|`|"|&/g, '?').replace(/\r\n|\r|\n/g,"<br/>")
+      if /firefox/i.test navigator.userAgent
+        value = value.replace(/\s/g, '&nbsp;')
+      value
     pos = this.getPos() if pos is undefined
     start_range = $inputor.val().slice(0, pos)
     end_range = $inputor.val().slice(pos)
