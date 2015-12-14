@@ -32,28 +32,6 @@ describe('jquery.caret', function() {
     // $('#inputor').caret('offset', fixPos);
   });
 
-  describe('Edge case from Gmail', function() {
-    beforeEach(function() {
-      var content = ''
-        + '<div id="inputor" contenteditable="true">'
-        + 'Hello '
-        + '<span>just</span> want'
-        + '<ul><li>Hi</li></ul>'
-        + '<div>---</div>'
-        + '</div>';
-      var fixture = setFixtures(content);
-      $inputor = fixture.find('#inputor');
-    });
-
-    it('sets the caret position when two child nodes match the condition', function() {
-      $inputor.caret('pos', 16);
-      var selection = window.getSelection();
-      expect(selection.anchorNode.nodeValue).toBe('Hi');
-      expect(selection.anchorOffset).toBe(1);
-      expect($inputor.caret('pos')).toBe(16);
-    });
-  });
-
   describe('EditableCaret', function() {
     beforeEach(function() {
       var contentEditable = ''
@@ -106,6 +84,28 @@ describe('jquery.caret', function() {
       expect(selection.anchorNode.nodeValue).toBe('Testin 2');
       expect(selection.anchorOffset).toBe(8);
       expect($inputor.caret('pos')).toBe(30);
+    });
+
+    describe('Edge case from Gmail', function() {
+      beforeEach(function() {
+        var content = ''
+          + '<div id="inputor" contenteditable="true">'
+          + 'Hello '
+          + '<span>just</span> want'
+          + '<ul><li>Hi</li></ul>'
+          + '<div>---</div>'
+          + '</div>';
+        var fixture = setFixtures(content);
+        $inputor = fixture.find('#inputor');
+      });
+
+      it('sets the caret position when two child nodes match the condition', function() {
+        $inputor.caret('pos', 16);
+        var selection = window.getSelection();
+        expect(selection.anchorNode.nodeValue).toBe('Hi');
+        expect(selection.anchorOffset).toBe(1);
+        expect($inputor.caret('pos')).toBe(16);
+      });
     });
   });
 });
