@@ -32,6 +32,28 @@ describe('jquery.caret', function() {
     // $('#inputor').caret('offset', fixPos);
   });
 
+  describe('Edge case from Gmail', function() {
+    beforeEach(function() {
+      var content = ''
+        + '<div id="inputor" contenteditable="true">'
+        + 'Hello '
+        + '<span>just</span> want'
+        + '<ul><li>Hi</li></ul>'
+        + '<div>---</div>'
+        + '</div>';
+      var fixture = setFixtures(content);
+      $inputor = fixture.find('#inputor');
+    });
+
+    it('sets the caret position when two child nodes match the condition', function() {
+      $inputor.caret('pos', 16);
+      var selection = window.getSelection();
+      expect(selection.anchorNode.nodeValue).toBe('Hi');
+      expect(selection.anchorOffset).toBe(1);
+      expect($inputor.caret('pos')).toBe(16);
+    });
+  });
+
   describe('EditableCaret', function() {
     beforeEach(function() {
       var contentEditable = ''
@@ -43,8 +65,9 @@ describe('jquery.caret', function() {
         + '<div>'
         + '<ul>'
         + '<li>Testing 1</li>'
-        + '<li>Testing 2</li>'
+        + '<li>Testin 2</li>'
         + '</ul>'
+        + '<div>--</div>'
         + '</div>'
         + '<div><br></div>'
         + '</div>';
@@ -58,6 +81,7 @@ describe('jquery.caret', function() {
       var selection = window.getSelection();
       expect(selection.anchorNode.nodeValue).toBe('Hello ');
       expect(selection.anchorOffset).toBe(3);
+      expect($inputor.caret('pos')).toBe(3);
     });
 
     it('sets the caret position in a span', function() {
@@ -65,6 +89,7 @@ describe('jquery.caret', function() {
       var selection = window.getSelection();
       expect(selection.anchorNode.nodeValue).toBe('World');
       expect(selection.anchorOffset).toBe(2);
+      expect($inputor.caret('pos')).toBe(8);
     });
 
     it('sets the caret position in a list item', function() {
@@ -72,13 +97,15 @@ describe('jquery.caret', function() {
       var selection = window.getSelection();
       expect(selection.anchorNode.nodeValue).toBe('Testing 1');
       expect(selection.anchorOffset).toBe(3);
+      expect($inputor.caret('pos')).toBe(16);
     });
 
     it('sets the caret position at the end of a list item', function() {
-      $inputor.caret('pos', 31);
+      $inputor.caret('pos', 30);
       var selection = window.getSelection();
-      expect(selection.anchorNode.nodeValue).toBe('Testing 2');
-      expect(selection.anchorOffset).toBe(9);
+      expect(selection.anchorNode.nodeValue).toBe('Testin 2');
+      expect(selection.anchorOffset).toBe(8);
+      expect($inputor.caret('pos')).toBe(30);
     });
   });
 });

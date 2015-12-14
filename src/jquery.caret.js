@@ -41,29 +41,35 @@ EditableCaret = (function() {
   }
 
   EditableCaret.prototype.setPos = function(pos) {
-    var fn, offset, sel;
+    var fn, found, offset, sel;
     if (sel = oWindow.getSelection()) {
       offset = 0;
+      found = false;
       (fn = function(pos, parent) {
-        var node, range, _i, _len, _ref;
+        var node, range, _i, _len, _ref, _results;
         _ref = parent.childNodes;
+        _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           node = _ref[_i];
+          if (found) {
+            break;
+          }
           if (node.nodeType === 3) {
             if (offset + node.length >= pos) {
+              found = true;
               range = oDocument.createRange();
               range.setStart(node, pos - offset);
               sel.removeAllRanges();
               sel.addRange(range);
-              return true;
-            }
-            offset += node.length;
-          } else {
-            if (fn(pos, node)) {
               break;
+            } else {
+              _results.push(offset += node.length);
             }
+          } else {
+            _results.push(fn(pos, node));
           }
         }
+        return _results;
       })(pos, this.domInputor);
     }
     return this.domInputor;

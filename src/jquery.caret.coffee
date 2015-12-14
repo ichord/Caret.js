@@ -23,18 +23,23 @@ class EditableCaret
   setPos: (pos) ->
     if sel = oWindow.getSelection()
       offset = 0
+      found = false
       do fn = (pos, parent=@domInputor) ->
         for node in parent.childNodes
+          if found
+            break
           if node.nodeType == 3
             if offset + node.length >= pos
+              found = true
               range = oDocument.createRange()
               range.setStart(node, pos - offset)
               sel.removeAllRanges()
               sel.addRange(range)
-              return true
-            offset += node.length
+              break
+            else
+              offset += node.length
           else
-            if fn(pos, node) then break
+            fn(pos, node)
 
     @domInputor
 
