@@ -20,7 +20,24 @@ class EditableCaret
     @domInputor = @$inputor[0]
 
   # NOTE: Duck type
-  setPos: (pos) -> @domInputor
+  setPos: (pos) ->
+    if sel = oWindow.getSelection()
+      offset = 0
+      do fn = (pos, parent=@domInputor) ->
+        for node in parent.childNodes
+          if node.nodeType == 3
+            if offset + node.length >= pos
+              range = oDocument.createRange()
+              range.setStart(node, pos - offset)
+              sel.removeAllRanges()
+              sel.addRange(range)
+              return true
+            offset += node.length
+          else
+            if fn(pos, node) then break
+
+    @domInputor
+
   getIEPosition: -> this.getPosition()
   getPosition: ->
     offset = this.getOffset()
