@@ -41,7 +41,6 @@ $('#inputor').caret('offset', fixPos);
 $('#inputor').caret('pos'); // => 15
 
 // Set caret position in the inputor
-// not working in contentEditable mode
 $('#inputor').caret('pos', 15);
 
 // set iframe context

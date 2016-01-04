@@ -1,6 +1,6 @@
 {
   "name": "jquery.caret",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Get caret position and offset from inputor",
   "main": "dist/jquery.caret.js",
   "dependencies": {
