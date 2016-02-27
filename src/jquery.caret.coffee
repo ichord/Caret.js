@@ -78,7 +78,7 @@ class EditableCaret
   getOffset: (pos) ->
     if oWindow.getSelection and range = this.range()
       # endContainer would be the inputor in Firefox at the begnning of a line
-      if range.endOffset - 1 > 0 and range.endContainer is not @domInputor
+      if range.endOffset - 1 > 0 and range.endContainer isnt @domInputor
         clonedRange = range.cloneRange()
         clonedRange.setStart(range.endContainer, range.endOffset - 1)
         clonedRange.setEnd(range.endContainer, range.endOffset)

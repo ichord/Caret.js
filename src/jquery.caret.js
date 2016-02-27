@@ -1,12 +1,12 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module unless amdModuleId is set
-    define(["jquery"], function (a0) {
-      return (factory(a0));
+    // AMD. Register as an anonymous module.
+    define(["jquery"], function ($) {
+      return (root.returnExportsGlobal = factory($));
     });
   } else if (typeof exports === 'object') {
     // Node. Does not work with strict CommonJS, but
-    // only CommonJS-like environments that support module.exports,
+    // only CommonJS-like enviroments that support module.exports,
     // like Node.
     module.exports = factory(require("jquery"));
   } else {
@@ -126,7 +126,7 @@ EditableCaret = (function() {
   EditableCaret.prototype.getOffset = function(pos) {
     var clonedRange, offset, range, rect, shadowCaret;
     if (oWindow.getSelection && (range = this.range())) {
-      if (range.endOffset - 1 > 0 && range.endContainer === !this.domInputor) {
+      if (range.endOffset - 1 > 0 && range.endContainer !== this.domInputor) {
         clonedRange = range.cloneRange();
         clonedRange.setStart(range.endContainer, range.endOffset - 1);
         clonedRange.setEnd(range.endContainer, range.endOffset);
