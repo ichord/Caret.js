@@ -3,10 +3,9 @@
   "version": "0.3.1",
   "description": "Get caret position and offset from inputor",
   "main": "dist/jquery.caret.js",
-  "dependencies": {
-    "grunt": "~0.4.1"
-  },
   "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-cli": "^1.2.0",
     "grunt-contrib-coffee": "~0.6.4",
     "grunt-contrib-jasmine": "~0.5.1",
     "grunt-contrib-uglify": "~0.2.0",
