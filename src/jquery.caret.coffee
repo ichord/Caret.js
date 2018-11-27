@@ -90,7 +90,7 @@ class EditableCaret
       # so we can't use it in all cases.
       if !offset or offset?.height == 0
         clonedRange = range.cloneRange()
-        shadowCaret = $ oDocument.createTextNode "|"
+        shadowCaret = $ oDocument.createTextNode "\u200D"
         clonedRange.insertNode shadowCaret[0]
         clonedRange.selectNode shadowCaret[0]
         rect = clonedRange.getBoundingClientRect()
