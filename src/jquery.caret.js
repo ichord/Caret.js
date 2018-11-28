@@ -140,7 +140,7 @@ EditableCaret = (function() {
       }
       if (!offset || (offset != null ? offset.height : void 0) === 0) {
         clonedRange = range.cloneRange();
-        shadowCaret = $(oDocument.createTextNode("|"));
+        shadowCaret = $(oDocument.createTextNode("\u200D"));
         clonedRange.insertNode(shadowCaret[0]);
         clonedRange.selectNode(shadowCaret[0]);
         rect = clonedRange.getBoundingClientRect();
